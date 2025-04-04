@@ -61,10 +61,10 @@ public class PrepareAction extends Action {
 
             if (player.getAbilities().creativeMode) {
                 this.addPickBlock(inventory, itemStack);
-                client.interactionManager.clickCreativeStack(player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.selectedSlot);
+                client.interactionManager.clickCreativeStack(player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.getSelectedSlot());
             } else if (slot != -1) {
                 if (PlayerInventory.isValidHotbarIndex(slot)) {
-                    inventory.selectedSlot = slot;
+                    inventory.setSelectedSlot(slot);
                 } else {
                     // TODO --> test this (pickFromInventory has been REMOVED)
                     //client.interactionManager.pickFromInventory(slot);
@@ -96,19 +96,19 @@ public class PrepareAction extends Action {
         int slot = inv.getSlotWithStack(stack);
 
         if (slot >= 0 && slot <= 9) {
-            inv.selectedSlot = slot;
+            inv.setSelectedSlot(slot);
         } else {
             if (slot == -1) {
-                inv.selectedSlot = inv.getSwappableHotbarSlot();
+                inv.setSelectedSlot(inv.getSwappableHotbarSlot());
 
-                if (!inv.main.get(inv.selectedSlot).isEmpty()) {
+                if (!inv.getMainStacks().get(inv.getSelectedSlot()).isEmpty()) {
                     int empty = inv.getEmptySlot();
 
                     if (empty != -1) {
-                        inv.main.set(empty, inv.main.get(inv.selectedSlot));
+                        inv.getMainStacks().set(empty, inv.getMainStacks().get(inv.getSelectedSlot()));
                     }
                 }
-                inv.main.set(inv.selectedSlot, stack);
+                inv.getMainStacks().set(inv.getSelectedSlot(), stack);
             } else {
                 inv.swapSlotWithHotbar(slot);
             }

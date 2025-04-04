@@ -47,7 +47,7 @@ public class MixinClientPlayerEntity extends AbstractClientPlayerEntity {
 
         if (!didCheckForUpdates) {
             didCheckForUpdates = true;
-            checkForUpdates();
+//            checkForUpdates();
         }
 
         if (LitematicaMixinMod.printer == null || LitematicaMixinMod.printer.player != clientPlayer) {

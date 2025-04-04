@@ -7,8 +7,8 @@ import net.minecraft.state.property.Property;
 
 public class PropertySpecificGuesserGuide extends GuesserGuide {
     protected static Property<?>[] ignoredProperties = new Property[]{
-            RepeaterBlock.DELAY,
-            ComparatorBlock.MODE,
+//            RepeaterBlock.DELAY,
+//            ComparatorBlock.MODE,
             RedstoneWireBlock.POWER,
             RedstoneWireBlock.WIRE_CONNECTION_EAST,
             RedstoneWireBlock.WIRE_CONNECTION_NORTH,
@@ -36,7 +36,7 @@ public class PropertySpecificGuesserGuide extends GuesserGuide {
             LeavesBlock.DISTANCE,
             LeavesBlock.PERSISTENT,
             Properties.ATTACHED,
-            Properties.NOTE,
+//            Properties.NOTE,
             Properties.INSTRUMENT,
 
     };
