@@ -2,11 +2,12 @@ package me.aleksilassila.litematica.printer.actions;
 
 import me.aleksilassila.litematica.printer.Printer;
 import me.aleksilassila.litematica.printer.implementation.PrinterPlacementContext;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.PlayerInput;
@@ -85,17 +86,17 @@ public class PrepareAction extends Action {
 
         if (context.shouldSneak) {
             player.input.playerInput = new PlayerInput(player.input.playerInput.forward(), player.input.playerInput.backward(), player.input.playerInput.left(), player.input.playerInput.right(), player.input.playerInput.jump(), true, player.input.playerInput.sprint());
-            player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY));
+            player.networkHandler.sendPacket(new PlayerInputC2SPacket(player.input.playerInput));
         } else {
             player.input.playerInput = new PlayerInput(player.input.playerInput.forward(), player.input.playerInput.backward(), player.input.playerInput.left(), player.input.playerInput.right(), player.input.playerInput.jump(), false, player.input.playerInput.sprint());
-            player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
+            player.networkHandler.sendPacket(new PlayerInputC2SPacket(player.input.playerInput));
         }
     }
 
     private void addPickBlock(PlayerInventory inv, ItemStack stack) {
         int slot = inv.getSlotWithStack(stack);
 
-        if (slot >= 0 && slot <= 9) {
+        if (PlayerInventory.isValidHotbarIndex(slot)) {
             inv.setSelectedSlot(slot);
         } else {
             if (slot == -1) {
