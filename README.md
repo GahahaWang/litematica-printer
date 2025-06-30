@@ -86,7 +86,6 @@ Minecraft versions that doesn't involve multiple git branches or hacky gradle sc
 (perhaps a way to share common code between the implementations?), please let me know.
 
 Useful gradle tasks:
-
 - `[v1_19/v1_18/v1_17]:syncImplementations`
     - Copy over common code to other implementations
 - `buildAll`
