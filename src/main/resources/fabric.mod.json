@@ -26,13 +26,13 @@
   "depends": {
     "fabric": "*",
     "java": ">=21",
-    "minecraft": ">=1.21.6 <1.21.8",
-    "malilib": ">=0.25.1- <0.26.0-",
-    "litematica": ">=0.23.1- <0.24.0-"
+    "minecraft": ">=1.21.6 <=1.21.8",
+    "malilib": ">=0.25.3- <0.26.0-",
+    "litematica": ">=0.23.3- <0.24.0-"
   },
   "breaks": {
-    "malilib": "<0.25.1-",
-    "litematica": "<0.23.1-"
+    "malilib": "<0.25.3-",
+    "litematica": "<0.23.3-"
   },
   "custom": {
     "modmenu": {
