@@ -30,6 +30,7 @@ repositories {
     //maven("https://www.cursemaven.com")
     maven("https://maven.terraformersmc.com/releases/")
     maven("https://jitpack.io")
+    maven("https://maven.fallenbreath.me/releases")
 }
 
 dependencies {
@@ -48,6 +49,24 @@ dependencies {
 
     // For Mod Menu display
     modCompileOnly("com.terraformersmc:modmenu:${mod_menu_version}")
+//    modRuntimeOnly("me.fallenbreath:mixin-auditor:0.1.0")
+}
+
+loom {
+    // HOW TO DO THIS WITH KTS ?
+//    val commonVmArgs = listOf("-Dmixin.debug.export=true", "-Dmixin.debug.countInjections=true")
+//    // [FEATURE] MIXIN_AUDITOR
+//    val auditVmArgs = commonVmArgs + "-DmixinAuditor.audit=true"
+//
+//    fun clientMixinAudit() {
+//        client()
+//        vmArgs(auditVmArgs)
+//        ideConfigGenerated = false
+//    }
+//
+//    runs {
+//        clientMixinAudit()
+//    }
 }
 
 tasks.withType<ProcessResources> {
