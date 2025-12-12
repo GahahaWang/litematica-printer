@@ -1,10 +1,10 @@
 package me.aleksilassila.litematica.printer.guides.placement;
 
 import me.aleksilassila.litematica.printer.SchematicBlockState;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FallingBlock;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class FallingBlockGuide extends GuesserGuide {
 
@@ -14,15 +14,15 @@ public class FallingBlockGuide extends GuesserGuide {
 
     boolean blockPlacement() {
         if (targetState.getBlock() instanceof FallingBlock) {
-            BlockState below = state.world.getBlockState(state.blockPos.offset(Direction.DOWN));
-            return FallingBlock.canFallThrough(below);
+            BlockState below = state.world.getBlockState(state.blockPos.relative(Direction.DOWN));
+            return FallingBlock.isFree(below);
         }
 
         return false;
     }
 
     @Override
-    public boolean canExecute(ClientPlayerEntity player) {
+    public boolean canExecute(LocalPlayer player) {
         if (blockPlacement())
             return false;
 

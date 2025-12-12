@@ -3,14 +3,13 @@ package me.aleksilassila.litematica.printer.guides;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.actions.Action;
 import me.aleksilassila.litematica.printer.implementation.BlockHelperImpl;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CoralBlock;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
-
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.CoralPlantBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
@@ -26,18 +25,18 @@ abstract public class Guide extends BlockHelperImpl {
         this.targetState = state.targetState;
     }
 
-    protected boolean playerHasRightItem(ClientPlayerEntity player) {
+    protected boolean playerHasRightItem(LocalPlayer player) {
         return getRequiredItemStackSlot(player) != -1;
     }
 
-    protected int getSlotWithItem(ClientPlayerEntity player, ItemStack itemStack) {
-        PlayerInventory inventory = player.getInventory();
+    protected int getSlotWithItem(LocalPlayer player, ItemStack itemStack) {
+        Inventory inventory = player.getInventory();
 
-        for (int i = 0; i < inventory.getMainStacks().size(); ++i) {
-            if (itemStack.isEmpty() && inventory.getMainStacks().get(i).isOf(itemStack.getItem())) {
+        for (int i = 0; i < inventory.getNonEquipmentItems().size(); ++i) {
+            if (itemStack.isEmpty() && inventory.getNonEquipmentItems().get(i).is(itemStack.getItem())) {
                 return i;
             }
-            if (!inventory.getMainStacks().get(i).isEmpty() && ItemStack.areItemsEqual(inventory.getMainStacks().get(i), itemStack)) {
+            if (!inventory.getNonEquipmentItems().get(i).isEmpty() && ItemStack.isSameItem(inventory.getNonEquipmentItems().get(i), itemStack)) {
                 return i;
             }
         }
@@ -45,8 +44,8 @@ abstract public class Guide extends BlockHelperImpl {
         return -1;
     }
 
-    protected int getRequiredItemStackSlot(ClientPlayerEntity player) {
-        if (player.getAbilities().creativeMode) {
+    protected int getRequiredItemStackSlot(LocalPlayer player) {
+        if (player.getAbilities().instabuild) {
             return player.getInventory().getSelectedSlot();
         }
 
@@ -54,7 +53,7 @@ abstract public class Guide extends BlockHelperImpl {
         return requiredItem.map(itemStack -> getSlotWithItem(player, itemStack)).orElse(-1);
     }
 
-    public boolean canExecute(ClientPlayerEntity player) {
+    public boolean canExecute(LocalPlayer player) {
         if (!playerHasRightItem(player)) {
             return false;
         }
@@ -65,7 +64,7 @@ abstract public class Guide extends BlockHelperImpl {
         return !statesEqual(targetState, currentState);
     }
 
-    abstract public @Nonnull List<Action> execute(ClientPlayerEntity player);
+    abstract public @Nonnull List<Action> execute(LocalPlayer player);
 
     abstract protected @Nonnull List<ItemStack> getRequiredItems();
 
@@ -73,11 +72,11 @@ abstract public class Guide extends BlockHelperImpl {
      * Returns the first required item that the player has access to,
      * or empty if the items are inaccessible.
      */
-    protected Optional<ItemStack> getRequiredItem(ClientPlayerEntity player) {
+    protected Optional<ItemStack> getRequiredItem(LocalPlayer player) {
         List<ItemStack> requiredItems = getRequiredItems();
 
         for (ItemStack requiredItem : requiredItems) {
-            if (player.getAbilities().creativeMode) {
+            if (player.getAbilities().instabuild) {
                 return Optional.of(requiredItem);
             }
 
@@ -98,7 +97,7 @@ abstract public class Guide extends BlockHelperImpl {
 
         loop:
         for (Property<?> property : state1.getProperties()) {
-            if (property == Properties.WATERLOGGED && !(state1.getBlock() instanceof CoralBlock)) {
+            if (property == BlockStateProperties.WATERLOGGED && !(state1.getBlock() instanceof CoralPlantBlock)) {
                 continue;
             }
 
@@ -109,7 +108,7 @@ abstract public class Guide extends BlockHelperImpl {
             }
 
             try {
-                if (!state1.get(property).equals(state2.get(property))) {
+                if (!state1.getValue(property).equals(state2.getValue(property))) {
                     return false;
                 }
             } catch (Exception e) {
@@ -121,8 +120,8 @@ abstract public class Guide extends BlockHelperImpl {
     }
 
     protected static <T extends Comparable<T>> Optional<T> getProperty(BlockState blockState, Property<T> property) {
-        if (blockState.contains(property)) {
-            return Optional.of(blockState.get(property));
+        if (blockState.hasProperty(property)) {
+            return Optional.of(blockState.getValue(property));
         }
         return Optional.empty();
     }

@@ -3,43 +3,42 @@ package me.aleksilassila.litematica.printer.guides.placement;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.guides.Guide;
 import me.aleksilassila.litematica.printer.implementation.PrinterPlacementContext;
-import net.minecraft.block.CandleBlock;
-import net.minecraft.block.SeaPickleBlock;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.SnowBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.CandleBlock;
+import net.minecraft.world.level.block.SeaPickleBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Optional;
 
 public class BlockReplacementGuide extends PlacementGuide {
-    private static final HashMap<IntProperty, Item> increasingProperties = new HashMap<>();
+    private static final HashMap<IntegerProperty, Item> increasingProperties = new HashMap<>();
 
     static {
-        increasingProperties.put(SnowBlock.LAYERS, null);
+        increasingProperties.put(SnowLayerBlock.LAYERS, null);
         increasingProperties.put(SeaPickleBlock.PICKLES, null);
         increasingProperties.put(CandleBlock.CANDLES, null);
     }
 
     private Integer currentLevel = null;
     private Integer targetLevel = null;
-    private IntProperty increasingProperty = null;
+    private IntegerProperty increasingProperty = null;
 
     public BlockReplacementGuide(SchematicBlockState state) {
         super(state);
 
-        for (IntProperty property : increasingProperties.keySet()) {
-            if (targetState.contains(property) && currentState.contains(property)) {
-                currentLevel = currentState.get(property);
-                targetLevel = targetState.get(property);
+        for (IntegerProperty property : increasingProperties.keySet()) {
+            if (targetState.hasProperty(property) && currentState.hasProperty(property)) {
+                currentLevel = currentState.getValue(property);
+                targetLevel = targetState.getValue(property);
                 increasingProperty = property;
                 break;
             }
@@ -52,17 +51,17 @@ public class BlockReplacementGuide extends PlacementGuide {
     }
 
     @Override
-    public @Nullable PrinterPlacementContext getPlacementContext(ClientPlayerEntity player) {
+    public @Nullable PrinterPlacementContext getPlacementContext(LocalPlayer player) {
         Optional<ItemStack> requiredItem = getRequiredItem(player);
         int slot = getRequiredItemStackSlot(player);
         if (requiredItem.isEmpty() || slot == -1) return null;
 
-        BlockHitResult hitResult = new BlockHitResult(Vec3d.ofCenter(state.blockPos), Direction.UP, state.blockPos, false);
+        BlockHitResult hitResult = new BlockHitResult(Vec3.atCenterOf(state.blockPos), Direction.UP, state.blockPos, false);
         return new PrinterPlacementContext(player, hitResult, requiredItem.get(), slot);
     }
 
     @Override
-    public boolean canExecute(ClientPlayerEntity player) {
+    public boolean canExecute(LocalPlayer player) {
         if (Guide.getProperty(targetState, SlabBlock.TYPE).orElse(null) == SlabType.DOUBLE && Guide.getProperty(currentState, SlabBlock.TYPE).orElse(SlabType.DOUBLE) != SlabType.DOUBLE) {
             return super.canExecute(player);
         }

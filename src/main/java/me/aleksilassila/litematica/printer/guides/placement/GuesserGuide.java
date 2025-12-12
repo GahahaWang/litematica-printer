@@ -3,17 +3,16 @@ package me.aleksilassila.litematica.printer.guides.placement;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.implementation.PrinterPlacementContext;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.ChestType;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 
 /**
@@ -33,15 +32,15 @@ public class GuesserGuide extends GeneralPlacementGuide {
             Direction.UP,
             Direction.DOWN
     };
-    protected static Vec3d[] hitVecsToTry = new Vec3d[]{
-            new Vec3d(-0.25, -0.25, -0.25),
-            new Vec3d(+0.25, -0.25, -0.25),
-            new Vec3d(-0.25, +0.25, -0.25),
-            new Vec3d(-0.25, -0.25, +0.25),
-            new Vec3d(+0.25, +0.25, -0.25),
-            new Vec3d(-0.25, +0.25, +0.25),
-            new Vec3d(+0.25, -0.25, +0.25),
-            new Vec3d(+0.25, +0.25, +0.25),
+    protected static Vec3[] hitVecsToTry = new Vec3[]{
+            new Vec3(-0.25, -0.25, -0.25),
+            new Vec3(+0.25, -0.25, -0.25),
+            new Vec3(-0.25, +0.25, -0.25),
+            new Vec3(-0.25, -0.25, +0.25),
+            new Vec3(+0.25, +0.25, -0.25),
+            new Vec3(-0.25, +0.25, +0.25),
+            new Vec3(+0.25, -0.25, +0.25),
+            new Vec3(+0.25, +0.25, +0.25),
     };
 
     public GuesserGuide(SchematicBlockState state) {
@@ -50,7 +49,7 @@ public class GuesserGuide extends GeneralPlacementGuide {
 
     @Nullable
     @Override
-    public PrinterPlacementContext getPlacementContext(ClientPlayerEntity player) {
+    public PrinterPlacementContext getPlacementContext(LocalPlayer player) {
         if (contextCache != null && !Configs.PRINT_DEBUG.getBooleanValue())
             return contextCache;
 
@@ -63,14 +62,14 @@ public class GuesserGuide extends GeneralPlacementGuide {
             if (slot != -1) {
                 // Try different directions to find a successful placement
                 for (Direction side : directionsToTry) {
-                    Vec3d hitVec = Vec3d.ofCenter(state.blockPos);
+                    Vec3 hitVec = Vec3.atCenterOf(state.blockPos);
                     BlockHitResult hitResult = new BlockHitResult(hitVec, side.getOpposite(), state.blockPos, false);
 
-                    boolean requiresShift = getRequiresExplicitShift() || isInteractive(state.world.getBlockState(state.blockPos.offset(side.getOpposite())).getBlock());
+                    boolean requiresShift = getRequiresExplicitShift() || isInteractive(state.world.getBlockState(state.blockPos.relative(side.getOpposite())).getBlock());
                     PrinterPlacementContext context = new PrinterPlacementContext(player, hitResult, requiredItem, slot, null, requiresShift);
                     BlockState result = getRequiredItemAsBlock(player)
                             .orElse(targetState.getBlock())
-                            .getPlacementState(context);
+                            .getStateForPlacement(context);
 
                     if (result != null && (statesEqual(result, targetState) || correctChestPlacement(targetState, result))) {
                         contextCache = context;
@@ -88,20 +87,20 @@ public class GuesserGuide extends GeneralPlacementGuide {
 
         for (Direction lookDirection : directionsToTry) {
             for (Direction side : directionsToTry) {
-                BlockPos neighborPos = state.blockPos.offset(side);
+                BlockPos neighborPos = state.blockPos.relative(side);
                 BlockState neighborState = state.world.getBlockState(neighborPos);
                 boolean requiresShift = getRequiresExplicitShift() || isInteractive(neighborState.getBlock());
 
                 if (!canBeClicked(state.world, neighborPos) || // Handle unclickable grass for example
-                        neighborState.isReplaceable())
+                        neighborState.canBeReplaced())
                     continue;
 
-                Vec3d hitVec = Vec3d.ofCenter(state.blockPos)
-                        .add(Vec3d.of(side.getVector()).multiply(0.5));
+                Vec3 hitVec = Vec3.atCenterOf(state.blockPos)
+                        .add(Vec3.atLowerCornerOf(side.getUnitVec3i()).scale(0.5));
 
-                for (Vec3d hitVecToTry : hitVecsToTry) {
-                    Vec3d multiplier = Vec3d.of(side.getVector());
-                    multiplier = new Vec3d(multiplier.x == 0 ? 1 : 0, multiplier.y == 0 ? 1 : 0,
+                for (Vec3 hitVecToTry : hitVecsToTry) {
+                    Vec3 multiplier = Vec3.atLowerCornerOf(side.getUnitVec3i());
+                    multiplier = new Vec3(multiplier.x == 0 ? 1 : 0, multiplier.y == 0 ? 1 : 0,
                             multiplier.z == 0 ? 1 : 0);
 
                     BlockHitResult hitResult = new BlockHitResult(hitVec.add(hitVecToTry.multiply(multiplier)),
@@ -110,7 +109,7 @@ public class GuesserGuide extends GeneralPlacementGuide {
                             lookDirection, requiresShift);
                     BlockState result = getRequiredItemAsBlock(player)
                             .orElse(targetState.getBlock())
-                            .getPlacementState(context); // FIXME torch shift clicks another torch and getPlacementState
+                            .getStateForPlacement(context); // FIXME torch shift clicks another torch and getPlacementState
                     // is the clicked block, which is true
 
                     if (result != null
@@ -126,7 +125,7 @@ public class GuesserGuide extends GeneralPlacementGuide {
     }
 
     @Override
-    public boolean canExecute(ClientPlayerEntity player) {
+    public boolean canExecute(LocalPlayer player) {
         if (targetState.getBlock() instanceof SlabBlock)
             return false; // Slabs are a special case
 
@@ -134,10 +133,10 @@ public class GuesserGuide extends GeneralPlacementGuide {
     }
 
     private boolean correctChestPlacement(BlockState targetState, BlockState result) {
-        if (targetState.contains(ChestBlock.CHEST_TYPE) && result.contains(ChestBlock.CHEST_TYPE)
-                && result.get(ChestBlock.FACING) == targetState.get(ChestBlock.FACING)) {
-            ChestType targetChestType = targetState.get(ChestBlock.CHEST_TYPE);
-            ChestType resultChestType = result.get(ChestBlock.CHEST_TYPE);
+        if (targetState.hasProperty(ChestBlock.TYPE) && result.hasProperty(ChestBlock.TYPE)
+                && result.getValue(ChestBlock.FACING) == targetState.getValue(ChestBlock.FACING)) {
+            ChestType targetChestType = targetState.getValue(ChestBlock.TYPE);
+            ChestType resultChestType = result.getValue(ChestBlock.TYPE);
 
             return targetChestType != ChestType.SINGLE && resultChestType == ChestType.SINGLE;
         }

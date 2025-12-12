@@ -1,11 +1,10 @@
 package me.aleksilassila.litematica.printer.guides.placement;
 
 import me.aleksilassila.litematica.printer.SchematicBlockState;
-import net.minecraft.block.Block;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.util.math.Direction;
-
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +16,7 @@ public class TorchGuide extends GeneralPlacementGuide {
 
     @Override
     protected List<Direction> getPossibleSides() {
-        Optional<Direction> facing = getProperty(targetState, HorizontalFacingBlock.FACING);
+        Optional<Direction> facing = getProperty(targetState, HorizontalDirectionalBlock.FACING);
 
         return facing
                 .map(direction -> Collections.singletonList(direction.getOpposite()))
@@ -25,7 +24,7 @@ public class TorchGuide extends GeneralPlacementGuide {
     }
 
     @Override
-    protected Optional<Block> getRequiredItemAsBlock(ClientPlayerEntity player) {
+    protected Optional<Block> getRequiredItemAsBlock(LocalPlayer player) {
         return Optional.of(state.targetState.getBlock());
     }
 }

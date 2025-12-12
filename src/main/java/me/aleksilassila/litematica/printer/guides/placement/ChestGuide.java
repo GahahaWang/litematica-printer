@@ -1,11 +1,10 @@
 package me.aleksilassila.litematica.printer.guides.placement;
 
 import me.aleksilassila.litematica.printer.SchematicBlockState;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.enums.ChestType;
-import net.minecraft.util.math.Direction;
-
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +40,7 @@ public class ChestGuide extends GeneralPlacementGuide {
 
     @Override
     protected List<Direction> getPossibleSides() {
-        ChestType targetType = getProperty(targetState, ChestBlock.CHEST_TYPE).orElse(null);
+        ChestType targetType = getProperty(targetState, ChestBlock.TYPE).orElse(null);
         Direction targetFacing = getProperty(targetState, ChestBlock.FACING).orElse(null);
 
         List<Direction> sides = new ArrayList<>();
@@ -71,7 +70,7 @@ public class ChestGuide extends GeneralPlacementGuide {
 
     private boolean willConnectToSide(SchematicBlockState state, Direction neighborDirection) {
         BlockState neighbor = state.offset(neighborDirection).currentState;
-        ChestType neighborType = getProperty(neighbor, ChestBlock.CHEST_TYPE).orElse(null);
+        ChestType neighborType = getProperty(neighbor, ChestBlock.TYPE).orElse(null);
         Direction neighborFacing = getProperty(neighbor, ChestBlock.FACING).orElse(null);
         Direction facing = getProperty(state.targetState, ChestBlock.FACING).orElse(null);
 
@@ -85,11 +84,11 @@ public class ChestGuide extends GeneralPlacementGuide {
     }
 
     private boolean wantsToConnectToSide(SchematicBlockState state, Direction direction) {
-        ChestType type = getProperty(state.targetState, ChestBlock.CHEST_TYPE).orElse(null);
+        ChestType type = getProperty(state.targetState, ChestBlock.TYPE).orElse(null);
         Direction facing = getProperty(state.targetState, ChestBlock.FACING).orElse(null);
         if (type == null || facing == null || type == ChestType.SINGLE) return false;
 
-        Direction neighborDirection = type == ChestType.LEFT ? facing.rotateYClockwise() : facing.rotateYCounterclockwise();
+        Direction neighborDirection = type == ChestType.LEFT ? facing.getClockWise() : facing.getCounterClockWise();
 
         return direction == neighborDirection;
     }

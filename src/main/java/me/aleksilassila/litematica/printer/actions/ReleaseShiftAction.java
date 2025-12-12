@@ -1,14 +1,14 @@
 package me.aleksilassila.litematica.printer.actions;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
-import net.minecraft.util.PlayerInput;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
+import net.minecraft.world.entity.player.Input;
 
 public class ReleaseShiftAction extends Action {
     @Override
-    public void send(MinecraftClient client, ClientPlayerEntity player) {
-        player.input.playerInput = new PlayerInput(player.input.playerInput.forward(), player.input.playerInput.backward(), player.input.playerInput.left(), player.input.playerInput.right(), player.input.playerInput.jump(), false, player.input.playerInput.sprint());
-        player.networkHandler.sendPacket(new PlayerInputC2SPacket(player.input.playerInput));
+    public void send(Minecraft client, LocalPlayer player) {
+        player.input.keyPresses = new Input(player.input.keyPresses.forward(), player.input.keyPresses.backward(), player.input.keyPresses.left(), player.input.keyPresses.right(), player.input.keyPresses.jump(), false, player.input.keyPresses.sprint());
+        player.connection.send(new ServerboundPlayerInputPacket(player.input.keyPresses));
     }
 }

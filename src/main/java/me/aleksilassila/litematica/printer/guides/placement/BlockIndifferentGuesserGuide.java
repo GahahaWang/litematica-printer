@@ -1,7 +1,9 @@
 package me.aleksilassila.litematica.printer.guides.placement;
 
 import me.aleksilassila.litematica.printer.SchematicBlockState;
-import net.minecraft.block.*;
+
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockIndifferentGuesserGuide extends GuesserGuide {
     public BlockIndifferentGuesserGuide(SchematicBlockState state) {
@@ -13,13 +15,13 @@ public class BlockIndifferentGuesserGuide extends GuesserGuide {
         Block targetBlock = targetState.getBlock();
         Block resultBlock = resultState.getBlock();
 
-        if (targetBlock instanceof BambooBlock) {
-            return resultBlock instanceof BambooBlock || resultBlock instanceof BambooShootBlock;
+        if (targetBlock instanceof BambooStalkBlock) {
+            return resultBlock instanceof BambooStalkBlock || resultBlock instanceof BambooSaplingBlock;
         }
 
         if (targetBlock instanceof BigDripleafStemBlock) {
             if (resultBlock instanceof BigDripleafBlock || resultBlock instanceof BigDripleafStemBlock) {
-                return resultState.get(HorizontalFacingBlock.FACING) == targetState.get(HorizontalFacingBlock.FACING);
+                return resultState.getValue(HorizontalDirectionalBlock.FACING) == targetState.getValue(HorizontalDirectionalBlock.FACING);
             }
         }
 
@@ -31,10 +33,10 @@ public class BlockIndifferentGuesserGuide extends GuesserGuide {
             }
         }
 
-        if (targetBlock instanceof TripwireBlock && resultBlock instanceof TripwireBlock) {
+        if (targetBlock instanceof TripWireBlock && resultBlock instanceof TripWireBlock) {
             return statesEqualIgnoreProperties(resultState, targetState,
-                    TripwireBlock.ATTACHED, TripwireBlock.DISARMED, TripwireBlock.POWERED, TripwireBlock.NORTH,
-                    TripwireBlock.EAST, TripwireBlock.SOUTH, TripwireBlock.WEST);
+                    TripWireBlock.ATTACHED, TripWireBlock.DISARMED, TripWireBlock.POWERED, TripWireBlock.NORTH,
+                    TripWireBlock.EAST, TripWireBlock.SOUTH, TripWireBlock.WEST);
         }
 
         return super.statesEqual(resultState, targetState);

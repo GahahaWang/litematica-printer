@@ -1,12 +1,11 @@
 package me.aleksilassila.litematica.printer.guides.interaction;
 
 import me.aleksilassila.litematica.printer.SchematicBlockState;
-import net.minecraft.block.AbstractCandleBlock;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.state.property.Properties;
-
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.AbstractCandleBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
@@ -18,8 +17,8 @@ public class LightCandleGuide extends InteractionGuide {
     public LightCandleGuide(SchematicBlockState state) {
         super(state);
 
-        shouldBeLit = getProperty(targetState, Properties.LIT).orElse(false);
-        isLit = getProperty(currentState, Properties.LIT).orElse(false);
+        shouldBeLit = getProperty(targetState, BlockStateProperties.LIT).orElse(false);
+        isLit = getProperty(currentState, BlockStateProperties.LIT).orElse(false);
     }
 
     @Override
@@ -28,7 +27,7 @@ public class LightCandleGuide extends InteractionGuide {
     }
 
     @Override
-    public boolean canExecute(ClientPlayerEntity player) {
+    public boolean canExecute(LocalPlayer player) {
         if (!super.canExecute(player))
             return false;
 

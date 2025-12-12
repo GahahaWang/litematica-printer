@@ -1,12 +1,11 @@
 package me.aleksilassila.litematica.printer.guides.placement;
 
 import me.aleksilassila.litematica.printer.SchematicBlockState;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,12 +48,12 @@ public class SlabGuide extends GeneralPlacementGuide {
     }
 
     @Override
-    protected Vec3d getHitModifier(Direction validSide) {
+    protected Vec3 getHitModifier(Direction validSide) {
         Direction requiredHalf = getRequiredHalf(state);
-        if (validSide.getHorizontalQuarterTurns() != -1) {
-            return new Vec3d(0, requiredHalf.getOffsetY() * 0.25, 0);
+        if (validSide.get2DDataValue() != -1) {
+            return new Vec3(0, requiredHalf.getStepY() * 0.25, 0);
         } else {
-            return new Vec3d(0, 0, 0);
+            return new Vec3(0, 0, 0);
         }
     }
 
@@ -62,10 +61,10 @@ public class SlabGuide extends GeneralPlacementGuide {
         BlockState targetState = state.targetState;
         BlockState currentState = state.currentState;
 
-        if (!currentState.contains(SlabBlock.TYPE)) {
-            return targetState.get(SlabBlock.TYPE) == SlabType.TOP ? Direction.UP : Direction.DOWN;
-        } else if (currentState.get(SlabBlock.TYPE) != targetState.get(SlabBlock.TYPE)) {
-            return currentState.get(SlabBlock.TYPE) == SlabType.TOP ? Direction.DOWN : Direction.UP;
+        if (!currentState.hasProperty(SlabBlock.TYPE)) {
+            return targetState.getValue(SlabBlock.TYPE) == SlabType.TOP ? Direction.UP : Direction.DOWN;
+        } else if (currentState.getValue(SlabBlock.TYPE) != targetState.getValue(SlabBlock.TYPE)) {
+            return currentState.getValue(SlabBlock.TYPE) == SlabType.TOP ? Direction.DOWN : Direction.UP;
         } else {
             return Direction.DOWN;
         }
