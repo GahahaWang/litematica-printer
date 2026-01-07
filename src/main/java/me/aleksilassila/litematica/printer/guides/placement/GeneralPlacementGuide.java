@@ -7,6 +7,7 @@ import me.aleksilassila.litematica.printer.implementation.PrinterPlacementContex
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -138,9 +139,9 @@ public class GeneralPlacementGuide extends PlacementGuide {
                 Direction hitSide = validSide.get().getOpposite(); // Use the opposite of the valid side to maintain orientation
 
                 // For pillar blocks like logs, we need to be more specific about the hit side
-                if (targetState.contains(net.minecraft.block.PillarBlock.AXIS)) {
+                if (targetState.hasProperty(RotatedPillarBlock.AXIS)) {
                     // For pillar blocks, use a side perpendicular to the intended axis
-                    Direction.Axis axis = targetState.get(net.minecraft.block.PillarBlock.AXIS);
+                    Direction.Axis axis = targetState.getValue(RotatedPillarBlock.AXIS);
                     if (axis == Direction.Axis.Y) {
                         hitSide = Direction.DOWN; // vertical log - hit from above
                     } else if (axis == Direction.Axis.X) {
