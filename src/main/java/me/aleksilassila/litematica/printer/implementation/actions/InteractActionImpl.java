@@ -17,7 +17,7 @@ public class InteractActionImpl extends InteractAction {
         if (client.gameMode != null) {
             client.gameMode.useItemOn(player, hand, hitResult);
             // why duplicate ?
-            client.gameMode.useItem(player, hand);
+            //client.gameMode.useItem(player, hand);
         }
     }
 }
