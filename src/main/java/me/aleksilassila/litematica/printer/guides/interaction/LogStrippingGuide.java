@@ -19,6 +19,7 @@ public class LogStrippingGuide extends InteractionGuide {
             Items.DIAMOND_AXE,
             Items.GOLDEN_AXE,
             Items.IRON_AXE,
+            Items.COPPER_AXE,
             Items.STONE_AXE,
             Items.WOODEN_AXE
     };
