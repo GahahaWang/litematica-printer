@@ -1,6 +1,7 @@
 {
     "litematica-printer.config.generic.comment.interactBlocks": "是否自动设置方块状态（如开关、方向等）。",
     "litematica-printer.config.generic.comment.printInAir": "允许方块在空中放置，无需在下方提供支撑方块。",
+    "litematica-printer.config.generic.comment.fallingBlockPrintInAir": "允许重力方块（如沙子、沙砾等）在空中放置，即使下方没有支撑也能放置。",
     "litematica-printer.config.generic.comment.printingDebug": "开启投影打印机调试日志。",
     "litematica-printer.config.generic.comment.printingInterval": "打印间隔（单位：刻）。数值越低打印速度越快。\n如果出现\"幽灵方块\"或方块朝向错误，请提高此数值。",
     "litematica-printer.config.generic.comment.printingMode": "自动建造/打印已加载的选区\n请注意某些服务器和反作弊插件可能禁止自动打印功能。",
@@ -9,6 +10,7 @@
     "litematica-printer.config.generic.comment.stripLogs": "当剥皮变种不可用时，是否先放置普通原木，\n然后用斧头进行剥皮处理。",
     "litematica-printer.config.generic.name.interactBlocks": "打印 - 方块交互",
     "litematica-printer.config.generic.name.printInAir": "打印 - 空中建造",
+    "litematica-printer.config.generic.name.fallingBlockPrintInAir": "打印 - 重力方块空中建造",
     "litematica-printer.config.generic.name.printingDebug": "打印 - 调试模式",
     "litematica-printer.config.generic.name.printingInterval": "打印 - 间隔",
     "litematica-printer.config.generic.name.printingMode": "打印 - 模式",
@@ -17,6 +19,7 @@
     "litematica-printer.config.generic.name.stripLogs": "打印 - 原木剥皮",
     "litematica-printer.config.generic.prettyName.interactBlocks": "方块交互",
     "litematica-printer.config.generic.prettyName.printInAir": "空中建造",
+    "litematica-printer.config.generic.prettyName.fallingBlockPrintInAir": "重力方块空中建造",
     "litematica-printer.config.generic.prettyName.printingDebug": "打印调试模式",
     "litematica-printer.config.generic.prettyName.printingInterval": "打印间隔",
     "litematica-printer.config.generic.prettyName.printingMode": "打印模式",

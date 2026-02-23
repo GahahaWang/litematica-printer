@@ -1,6 +1,7 @@
 package me.aleksilassila.litematica.printer.guides.placement;
 
 import me.aleksilassila.litematica.printer.SchematicBlockState;
+import me.aleksilassila.litematica.printer.config.Configs;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.FallingBlock;
@@ -23,7 +24,7 @@ public class FallingBlockGuide extends GuesserGuide {
 
     @Override
     public boolean canExecute(LocalPlayer player) {
-        if (blockPlacement())
+        if (blockPlacement() && !Configs.FALLING_BLOCK_PRINT_IN_AIR.getBooleanValue())
             return false;
 
         return super.canExecute(player);
@@ -31,7 +32,7 @@ public class FallingBlockGuide extends GuesserGuide {
 
     @Override
     public boolean skipOtherGuides() {
-        if (blockPlacement())
+        if (blockPlacement() && !Configs.FALLING_BLOCK_PRINT_IN_AIR.getBooleanValue())
             return true;
 
         return super.skipOtherGuides();

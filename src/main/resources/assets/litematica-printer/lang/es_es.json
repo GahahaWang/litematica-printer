@@ -1,6 +1,7 @@
 {
     "litematica-printer.config.generic.comment.interactBlocks": "Si la impresora debe establecer o no estados de bloque.",
     "litematica-printer.config.generic.comment.printInAir": "Permitir que los bloques se coloquen en el aire sin necesidad de bloques de soporte debajo.",
+    "litematica-printer.config.generic.comment.fallingBlockPrintInAir": "Permitir que los bloques de caída (como arena, grava, etc.) se coloquen en el aire incluso sin soporte debajo.",
     "litematica-printer.config.generic.comment.printingDebug": "Habilita el registro de depuración para la impresión.",
     "litematica-printer.config.generic.comment.printingInterval": "Intervalo de impresión. Los valores más bajos indican una mayor velocidad de impresión.\nSi la impresora crea \"Bloques fantasma\" o los bloques están orientados en la dirección incorrecta, aumente este valor.",
     "litematica-printer.config.generic.comment.printingMode": "Autoimprimir / imprimir seleccion cargada.\nTenga en cuenta que algunos servidores y anticheats  no permiten la impresión.",
@@ -9,6 +10,7 @@
     "litematica-printer.config.generic.comment.stripLogs": "Si la impresora debe o no utilizar registros normales si las versiones\nEliminadas no están disponibles y luego eliminarlas con un hacha.",
     "litematica-printer.config.generic.name.interactBlocks": "Bloques de interacción",
     "litematica-printer.config.generic.name.printInAir": "Printear en el aire",
+    "litematica-printer.config.generic.name.fallingBlockPrintInAir": "Bloques de caída en el aire",
     "litematica-printer.config.generic.name.printingDebug": "Depuración Impresión",
     "litematica-printer.config.generic.name.printingInterval": "Intervalo de impresión",
     "litematica-printer.config.generic.name.printingMode": "Modo de impresión",
@@ -17,6 +19,7 @@
     "litematica-printer.config.generic.name.stripLogs": "Registros de corteza",
     "litematica-printer.config.generic.prettyName.interactBlocks": "Bloques interactivos",
     "litematica-printer.config.generic.prettyName.printInAir": "Imprimir en el aire",
+    "litematica-printer.config.generic.prettyName.fallingBlockPrintInAir": "Bloques de caída en el aire",
     "litematica-printer.config.generic.prettyName.printingDebug": "Depuración de impresión",
     "litematica-printer.config.generic.prettyName.printingInterval": "Intervalo de impresión",
     "litematica-printer.config.generic.prettyName.printingMode": "Modo de impresión",
