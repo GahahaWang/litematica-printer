@@ -10,8 +10,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class LogStrippingGuide extends InteractionGuide {
     static final Item[] AXE_ITEMS = new Item[]{
@@ -25,6 +27,14 @@ public class LogStrippingGuide extends InteractionGuide {
     };
 
     public static final Map<Block, Block> STRIPPED_BLOCKS = AxeItemAccessor.getStrippedBlocks();
+    // Reverse Map
+    public static final Map<Block, Block> STRIPPED_TO_LOG =
+            STRIPPED_BLOCKS.entrySet()
+                    .stream()
+                    .collect(Collectors.collectingAndThen(
+                            Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey),
+                            Collections::unmodifiableMap
+                    ));
 
     public LogStrippingGuide(SchematicBlockState state) {
         super(state);

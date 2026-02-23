@@ -45,10 +45,15 @@ public class LogGuide extends GeneralPlacementGuide {
         if (!Configs.STRIP_LOGS.getBooleanValue())
             return false;
 
-        if (LogStrippingGuide.STRIPPED_BLOCKS.containsValue(targetState.getBlock())) {
-            return super.canExecute(player);
+        Block original = LogStrippingGuide.STRIPPED_TO_LOG.get(targetState.getBlock());
+        if (original == null) {
+            return false;
         }
 
-        return false;
+        if (currentState.getBlock() == original) {
+            return false;
+        }
+
+        return super.canExecute(player);
     }
 }

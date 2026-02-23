@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Printer {
@@ -29,6 +30,7 @@ public class Printer {
     public final LocalPlayer player;
     public final ActionHandler actionHandler;
     private final Guides interactionGuides = new Guides();
+    private static final LinkedHashMap<Long, PositionCache> positionCache = new LinkedHashMap<>();
 
     public Printer(@Nonnull Minecraft client, @Nonnull LocalPlayer player) {
         this.player = player;
@@ -74,6 +76,7 @@ public class Printer {
                     printDebug("Executing {} for {}", guide, state);
                     List<Action> actions = guide.execute(player);
                     actionHandler.addActions(actions.toArray(Action[]::new));
+                    cachePosition(position);
                     return true;
                 }
                 if (guide.skipOtherGuides()) {
@@ -126,6 +129,54 @@ public class Printer {
     public static void printDebug(String key, Object... args) {
         if (Configs.PRINT_DEBUG.getBooleanValue()) {
             logger.info(key, args);
+        }
+    }
+
+    public static boolean isPositionCached(BlockPos pos) {
+        long currentTime = System.nanoTime();
+        boolean cached = false;
+        
+        for (Long key : List.copyOf(positionCache.keySet())) {
+            PositionCache val = positionCache.get(key);
+            boolean expired = val.hasExpired(currentTime);
+
+            if (expired) {
+                positionCache.remove(key);
+            } else if (val.getPos().equals(pos)) {
+                cached = true;
+                // Keep checking and removing old entries if there are a fair amount
+                if (positionCache.size() < 16) {
+                    break;
+                }
+            }
+        }
+        return cached;
+    }
+
+    public static void cachePosition(BlockPos pos) {
+        cachePosition(pos, Configs.PRINTER_CACHE_MS.getIntegerValue());
+    }
+
+    public static void cachePosition(BlockPos pos, int milliseconds) {
+        PositionCache item = new PositionCache(pos, System.nanoTime(), milliseconds * 1000000L);
+        positionCache.put(pos.asLong(), item);
+    }
+
+    public static class PositionCache {
+        private final BlockPos pos;
+        private final long timeout;
+
+        private PositionCache(BlockPos pos, long time, long timeout) {
+            this.pos = pos;
+            this.timeout = time + timeout;
+        }
+
+        public BlockPos getPos() {
+            return pos;
+        }
+
+        public boolean hasExpired(long currentTime) {
+            return currentTime > this.timeout;
         }
     }
 }

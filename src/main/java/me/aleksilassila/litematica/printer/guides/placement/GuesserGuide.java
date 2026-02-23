@@ -55,25 +55,30 @@ public class GuesserGuide extends GeneralPlacementGuide {
 
         // First, try air placement if enabled
         boolean printInAir = Configs.PRINT_IN_AIR.getBooleanValue();
-        if (printInAir && !getRequiresSupport()) {
+        if (printInAir) {
             ItemStack requiredItem = getRequiredItem(player).orElse(ItemStack.EMPTY);
             int slot = getRequiredItemStackSlot(player);
 
             if (slot != -1) {
-                // Try different directions to find a successful placement
-                for (Direction side : directionsToTry) {
-                    Vec3 hitVec = Vec3.atCenterOf(state.blockPos);
-                    BlockHitResult hitResult = new BlockHitResult(hitVec, side.getOpposite(), state.blockPos, false);
+                // Try different look directions and click sides to find a successful placement
+                // This allows placing directional blocks in the air without support
+                for (Direction lookDirection : directionsToTry) {
+                    for (Direction side : directionsToTry) {
+                        for (Vec3 hitVecToTry : hitVecsToTry) {
+                            Vec3 hitVec = Vec3.atCenterOf(state.blockPos).add(hitVecToTry.scale(0.3));
+                            BlockHitResult hitResult = new BlockHitResult(hitVec, side, state.blockPos, false);
 
-                    boolean requiresShift = getRequiresExplicitShift() || isInteractive(state.world.getBlockState(state.blockPos.relative(side.getOpposite())).getBlock());
-                    PrinterPlacementContext context = new PrinterPlacementContext(player, hitResult, requiredItem, slot, null, requiresShift);
-                    BlockState result = getRequiredItemAsBlock(player)
-                            .orElse(targetState.getBlock())
-                            .getStateForPlacement(context);
+                            boolean requiresShift = getRequiresExplicitShift() || isInteractive(state.world.getBlockState(state.blockPos.relative(side.getOpposite())).getBlock());;
+                            PrinterPlacementContext context = new PrinterPlacementContext(player, hitResult, requiredItem, slot, lookDirection, requiresShift);
+                            BlockState result = getRequiredItemAsBlock(player)
+                                    .orElse(targetState.getBlock())
+                                    .getStateForPlacement(context);
 
-                    if (result != null && (statesEqual(result, targetState) || correctChestPlacement(targetState, result))) {
-                        contextCache = context;
-                        return context;
+                            if (result != null && (statesEqual(result, targetState) || correctChestPlacement(targetState, result))) {
+                                contextCache = context;
+                                return context;
+                            }
+                        }
                     }
                 }
             }
