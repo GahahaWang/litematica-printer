@@ -60,6 +60,9 @@ public class Printer {
         List<BlockPos> positions = getReachablePositions();
         findBlock:
         for (BlockPos position : positions) {
+            if (isPositionCached(position)) {
+                continue;
+            }
             SchematicBlockState state = new SchematicBlockState(player.level(), worldSchematic, position);
             if (state.targetState.equals(state.currentState) || state.targetState.isAir()) {
                 continue;
