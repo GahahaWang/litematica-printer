@@ -21,7 +21,7 @@ abstract public class BlockHelper {
             DropperBlock.class, DispenserBlock.class, ShulkerBoxBlock.class, LecternBlock.class,
             FlowerPotBlock.class, BarrelBlock.class, BellBlock.class, SmithingTableBlock.class,
             LoomBlock.class, CartographyTableBlock.class, GrindstoneBlock.class,
-            StonecutterBlock.class, SignBlock.class, AbstractCandleBlock.class));
+            StonecutterBlock.class, SignBlock.class, AbstractCandleBlock.class, CrafterBlock.class));
 
     public static final Item[] SHOVEL_ITEMS = new Item[]{
             Items.NETHERITE_SHOVEL,
