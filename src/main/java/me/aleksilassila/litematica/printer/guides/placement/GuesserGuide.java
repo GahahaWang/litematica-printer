@@ -64,7 +64,7 @@ public class GuesserGuide extends GeneralPlacementGuide {
                 for (Direction lookDirection : directionsToTry) {
                     Vec3 hitVec = Vec3.atCenterOf(state.blockPos);
                     BlockHitResult hitResult = new BlockHitResult(hitVec, lookDirection.getOpposite(), state.blockPos, false);
-                    boolean requiresShift = getRequiresExplicitShift() || isInteractive(state.world.getBlockState(state.blockPos.relative(lookDirection)).getBlock());
+                    boolean requiresShift = getRequiresExplicitShift();
                     PrinterPlacementContext context = new PrinterPlacementContext(player, hitResult, requiredItem, slot, lookDirection, requiresShift);
                     BlockState result = getRequiredItemAsBlock(player)
                             .orElse(targetState.getBlock())
