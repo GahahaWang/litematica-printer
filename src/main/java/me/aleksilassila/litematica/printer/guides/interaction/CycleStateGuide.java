@@ -14,7 +14,8 @@ import java.util.List;
 public class CycleStateGuide extends InteractionGuide {
     private static final Property<?>[] propertiesToIgnore = new Property[]{
             BlockStateProperties.POWERED,
-            BlockStateProperties.LIT
+            BlockStateProperties.LIT,
+            BlockStateProperties.LOCKED,
     };
 
     public CycleStateGuide(SchematicBlockState state) {

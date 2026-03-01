@@ -7,6 +7,7 @@ import me.aleksilassila.litematica.printer.guides.placement.*;
 
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.piston.*;
 
 public class Guides {
     protected final static ArrayList<Tuple<Class<? extends Guide>, Class<? extends Block>[]>> guides = new ArrayList<>();
@@ -37,7 +38,8 @@ public class Guides {
                 ChestBlock.class,
                 SnowLayerBlock.class, SeaPickleBlock.class, CandleBlock.class, LeverBlock.class, EndPortalFrameBlock.class,
                 NoteBlock.class, CampfireBlock.class, PoweredRailBlock.class, LeavesBlock.class,
-                TripWireHookBlock.class);
+                TripWireHookBlock.class,
+                ObserverBlock.class, PistonBaseBlock.class);
         registerGuide(FallingBlockGuide.class, FallingBlock.class);
         registerGuide(BlockIndifferentGuesserGuide.class, BambooStalkBlock.class, BigDripleafStemBlock.class,
                 BigDripleafBlock.class,

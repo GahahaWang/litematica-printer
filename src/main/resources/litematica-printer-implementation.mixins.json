@@ -4,7 +4,8 @@
   "package": "me.aleksilassila.litematica.printer.implementation.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "MixinClientPlayerEntity"
+    "MixinClientPlayerEntity",
+    "MultiPlayerGameModeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

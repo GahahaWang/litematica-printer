@@ -14,6 +14,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.level.block.piston.MovingPistonBlock;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
@@ -64,7 +65,7 @@ public class Printer {
                 continue;
             }
             SchematicBlockState state = new SchematicBlockState(player.level(), worldSchematic, position);
-            if (state.targetState.equals(state.currentState) || state.targetState.isAir()) {
+            if (state.targetState.equals(state.currentState) || state.targetState.isAir() || (state.currentState.getBlock() instanceof MovingPistonBlock)) {
                 continue;
             }
 

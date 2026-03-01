@@ -80,7 +80,7 @@ abstract public class PlacementGuide extends Guide {
 
         BlockPlaceContext ctx = getPlacementContext(player);
         if (ctx == null || !ctx.canPlace()) return false;
-//        if (!state.currentState.getMaterial().isReplaceable()) return false;
+        if (!state.currentState.canBeReplaced()) return false;
         if (!Configs.REPLACE_FLUIDS_SOURCE_BLOCKS.getBooleanValue()
                 && getProperty(state.currentState, LiquidBlock.LEVEL).orElse(1) == 0)
             return false;

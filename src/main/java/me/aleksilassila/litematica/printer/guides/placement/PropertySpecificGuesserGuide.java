@@ -9,8 +9,8 @@ import net.minecraft.world.level.block.state.properties.Property;
 
 public class PropertySpecificGuesserGuide extends GuesserGuide {
     protected static Property<?>[] ignoredProperties = new Property[]{
-//            RepeaterBlock.DELAY,
-//            ComparatorBlock.MODE,
+            RepeaterBlock.DELAY,
+            ComparatorBlock.MODE,
             RedStoneWireBlock.POWER,
             RedStoneWireBlock.EAST,
             RedStoneWireBlock.NORTH,
@@ -38,8 +38,9 @@ public class PropertySpecificGuesserGuide extends GuesserGuide {
             LeavesBlock.DISTANCE,
             LeavesBlock.PERSISTENT,
             BlockStateProperties.ATTACHED,
-//            Properties.NOTE,
+            BlockStateProperties.NOTE,
             BlockStateProperties.NOTEBLOCK_INSTRUMENT,
+            BlockStateProperties.EXTENDED, // Piston
 
     };
 
