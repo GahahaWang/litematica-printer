@@ -20,6 +20,9 @@ public class Guides {
     static {
         // registerGuide(SkipGuide.class, AbstractSignBlock.class, SkullBlock.class, BannerBlock.class);
 
+        // Smart redstone checks (must be early in the list to skip blocks before other guides)
+        registerGuide(SmartRedstoneGuide.class, PoweredBlock.class, TntBlock.class, PistonBaseBlock.class, ObserverBlock.class);
+
         registerGuide(RotatingBlockGuide.class, AbstractSkullBlock.class, SignBlock.class, AbstractBannerBlock.class);
         registerGuide(SlabGuide.class, SlabBlock.class);
         registerGuide(TorchGuide.class, TorchBlock.class);

@@ -23,6 +23,12 @@ public class Configs {
     public static final ConfigBoolean PRINT_IN_AIR = new ConfigBoolean("printInAir", false).apply(GENERIC_KEY);
     public static final ConfigBoolean FALLING_BLOCK_PRINT_IN_AIR = new ConfigBoolean("fallingBlockPrintInAir", false).apply(GENERIC_KEY);
     public static final ConfigInteger PRINTER_CACHE_MS = new ConfigInteger("printerCacheMs", 200, 0, 5000).apply(GENERIC_KEY);
+    
+    // Smart Redstone configs
+    public static final ConfigBoolean SMART_REDSTONE_ENABLED = new ConfigBoolean("smartRedstoneEnabled", true).apply(GENERIC_KEY);
+    public static final ConfigBoolean OBSERVER_AVOID_ALL = new ConfigBoolean("observerAvoidAll", true).apply(GENERIC_KEY);
+    public static final ConfigBoolean SUPPRESS_PUSH_LIMIT = new ConfigBoolean("suppressPushLimitPistons", true).apply(GENERIC_KEY);
+    public static final ConfigBoolean AVOID_CHECK_ONLY_PISTONS = new ConfigBoolean("avoidCheckOnlyPistons", true).apply(GENERIC_KEY);
 
     public static ImmutableList<IConfigBase> getConfigList() {
         List<IConfigBase> list = new java.util.ArrayList<>(fi.dy.masa.litematica.config.Configs.Generic.OPTIONS);
@@ -36,6 +42,10 @@ public class Configs {
         list.add(PRINT_IN_AIR);
         list.add(FALLING_BLOCK_PRINT_IN_AIR);
         list.add(PRINTER_CACHE_MS);
+        list.add(SMART_REDSTONE_ENABLED);
+        list.add(OBSERVER_AVOID_ALL);
+        list.add(SUPPRESS_PUSH_LIMIT);
+        list.add(AVOID_CHECK_ONLY_PISTONS);
 
         return ImmutableList.copyOf(list);
     }
