@@ -20,6 +20,7 @@ public class Configs {
     public static final ConfigBoolean REPLACE_FLUIDS_SOURCE_BLOCKS = new ConfigBoolean("replaceFluidSourceBlocks", true).apply(GENERIC_KEY);
     public static final ConfigBoolean STRIP_LOGS = new ConfigBoolean("stripLogs", true).apply(GENERIC_KEY);
     public static final ConfigBoolean INTERACT_BLOCKS = new ConfigBoolean("interactBlocks", true).apply(GENERIC_KEY);
+    public static final ConfigBoolean BREAK_BLOCKS = new ConfigBoolean("breakBlocks", true).apply(GENERIC_KEY);
     public static final ConfigBoolean PRINT_IN_AIR = new ConfigBoolean("printInAir", false).apply(GENERIC_KEY);
     public static final ConfigBoolean FALLING_BLOCK_PRINT_IN_AIR = new ConfigBoolean("fallingBlockPrintInAir", false).apply(GENERIC_KEY);
     public static final ConfigInteger PRINTER_CACHE_MS = new ConfigInteger("printerCacheMs", 200, 0, 5000).apply(GENERIC_KEY);
@@ -39,6 +40,7 @@ public class Configs {
         list.add(REPLACE_FLUIDS_SOURCE_BLOCKS);
         list.add(STRIP_LOGS);
         list.add(INTERACT_BLOCKS);
+        list.add(BREAK_BLOCKS);
         list.add(PRINT_IN_AIR);
         list.add(FALLING_BLOCK_PRINT_IN_AIR);
         list.add(PRINTER_CACHE_MS);

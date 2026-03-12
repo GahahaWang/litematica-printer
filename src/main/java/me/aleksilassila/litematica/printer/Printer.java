@@ -1,6 +1,10 @@
 package me.aleksilassila.litematica.printer;
 
+import com.google.common.collect.ImmutableMap;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
+import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
+import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.RayTraceUtils;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
@@ -14,7 +18,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Abilities;
-import net.minecraft.world.level.block.piston.MovingPistonBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
@@ -53,6 +58,11 @@ public class Printer {
             return false;
         }
 
+        if (LitematicaMixinMod.breaker.isBreakingBlock()) {
+            printDebug("Breaker is currently breaking a block, skipping other operations");
+            return false;
+        }
+
         Abilities abilities = player.getAbilities();
         if (!abilities.mayBuild) {
             return false;
@@ -65,8 +75,13 @@ public class Printer {
                 continue;
             }
             SchematicBlockState state = new SchematicBlockState(player.level(), worldSchematic, position);
-            if (state.targetState.equals(state.currentState) || state.targetState.isAir() || (state.currentState.getBlock() instanceof MovingPistonBlock)) {
+            BlockState cs = state.currentState;
+            BlockState ts = state.targetState;
+            if (ts.equals(cs) || (cs.is(Blocks.MOVING_PISTON))) {
                 continue;
+            }
+            if(!cs.isAir() && !cs.is(ts.getBlock()) && !Configs.BREAK_BLOCKS.getBooleanValue()) {
+                continue ;
             }
 
             Guide[] guides = interactionGuides.getInteractionGuides(state);
@@ -120,7 +135,8 @@ public class Printer {
                 {
                     Vec3 vec = Vec3.atCenterOf(p);
                     return this.player.position().distanceToSqr(vec) > 1
-                            && this.player.getEyePosition().distanceToSqr(vec) > 1;
+                            && this.player.getEyePosition().distanceToSqr(vec) > 1
+                            && isPositionInSchematicBounds(p);
                 })
                 .sorted((a, b) ->
                 {
@@ -128,6 +144,51 @@ public class Printer {
                     double bDistance = this.player.position().distanceToSqr(Vec3.atCenterOf(b));
                     return Double.compare(aDistance, bDistance);
                 }).toList();
+    }
+
+    private boolean isPositionInSchematicBounds(BlockPos pos) {
+        List<SchematicPlacement> placements = DataManager.getSchematicPlacementManager().getAllSchematicsPlacements();
+        
+        if (placements.isEmpty()) {
+            return false;
+        }
+        
+        for (SchematicPlacement placement : placements) {
+            if (!placement.isEnabled()) {
+                continue;
+            }
+            
+            ImmutableMap<String, Box> boxes = placement.getSubRegionBoxes(SubRegionPlacement.RequiredEnabled.PLACEMENT_ENABLED);
+            
+            for (Box box : boxes.values()) {
+                if (isPositionWithinBox(box, pos)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+
+    private boolean isPositionWithinBox(Box box, BlockPos pos) {
+        if (box == null) {
+            return false;
+        }
+        
+        BlockPos pos1 = box.getPos1();
+        BlockPos pos2 = box.getPos2();
+        
+        int minX = Math.min(pos1.getX(), pos2.getX());
+        int maxX = Math.max(pos1.getX(), pos2.getX());
+        int minY = Math.min(pos1.getY(), pos2.getY());
+        int maxY = Math.max(pos1.getY(), pos2.getY());
+        int minZ = Math.min(pos1.getZ(), pos2.getZ());
+        int maxZ = Math.max(pos1.getZ(), pos2.getZ());
+        
+        return pos.getX() >= minX && pos.getX() <= maxX &&
+               pos.getY() >= minY && pos.getY() <= maxY &&
+               pos.getZ() >= minZ && pos.getZ() <= maxZ;
     }
 
     public static void printDebug(String key, Object... args) {

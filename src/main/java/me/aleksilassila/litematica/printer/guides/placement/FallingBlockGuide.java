@@ -16,25 +16,24 @@ public class FallingBlockGuide extends GuesserGuide {
     boolean blockPlacement() {
         if (targetState.getBlock() instanceof FallingBlock) {
             BlockState below = state.world.getBlockState(state.blockPos.relative(Direction.DOWN));
-            return FallingBlock.isFree(below);
+            return !FallingBlock.isFree(below) || getRequiresSupport();
         }
 
         return false;
     }
 
     @Override
-    public boolean canExecute(LocalPlayer player) {
-        if (blockPlacement() && !Configs.FALLING_BLOCK_PRINT_IN_AIR.getBooleanValue())
-            return false;
+    public boolean getRequiresSupport() {
+        return !Configs.FALLING_BLOCK_PRINT_IN_AIR.getBooleanValue();
+    }
 
-        return super.canExecute(player);
+    @Override
+    public boolean canExecute(LocalPlayer player) {
+        return blockPlacement() || super.canExecute(player);
     }
 
     @Override
     public boolean skipOtherGuides() {
-        if (blockPlacement() && !Configs.FALLING_BLOCK_PRINT_IN_AIR.getBooleanValue())
-            return true;
-
-        return super.skipOtherGuides();
+        return !blockPlacement() || super.skipOtherGuides();
     }
 }

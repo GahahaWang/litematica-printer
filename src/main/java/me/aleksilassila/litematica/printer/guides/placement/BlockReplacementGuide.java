@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.SeaPickleBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -56,14 +57,31 @@ public class BlockReplacementGuide extends PlacementGuide {
         int slot = getRequiredItemStackSlot(player);
         if (requiredItem.isEmpty() || slot == -1) return null;
 
-        BlockHitResult hitResult = new BlockHitResult(Vec3.atCenterOf(state.blockPos), Direction.UP, state.blockPos, false);
+        SlabType currentSlabType = Guide.getProperty(currentState, SlabBlock.TYPE).orElse(null);
+        SlabType targetSlabType  = Guide.getProperty(targetState,  SlabBlock.TYPE).orElse(null);
+        Direction hitSide = Direction.UP;
+        if (targetSlabType == SlabType.DOUBLE && currentSlabType == SlabType.TOP) {
+            hitSide = Direction.DOWN;
+        }
+
+        BlockHitResult hitResult = new BlockHitResult(Vec3.atCenterOf(state.blockPos), hitSide, state.blockPos, false);
         return new PrinterPlacementContext(player, hitResult, requiredItem.get(), slot);
     }
 
+
     @Override
     public boolean canExecute(LocalPlayer player) {
-        if (Guide.getProperty(targetState, SlabBlock.TYPE).orElse(null) == SlabType.DOUBLE && Guide.getProperty(currentState, SlabBlock.TYPE).orElse(SlabType.DOUBLE) != SlabType.DOUBLE) {
-            return super.canExecute(player);
+
+        if (Guide.getProperty(targetState, SlabBlock.TYPE).orElse(null) == SlabType.DOUBLE
+                && Guide.getProperty(currentState, SlabBlock.TYPE).orElse(SlabType.DOUBLE) != SlabType.DOUBLE) {
+            if (!playerHasRightItem(player)) return false;
+            if (statesEqual(targetState, currentState)) return false;
+            PrinterPlacementContext ctx = getPlacementContext(player);
+            if (ctx == null || !ctx.canPlace()) return false;
+            BlockState resultState = getRequiredItemAsBlock(player)
+                    .orElse(targetState.getBlock())
+                    .getStateForPlacement(ctx);
+            return resultState != null && resultState.canSurvive(state.world, state.blockPos);
         }
 
         if (currentLevel == null || targetLevel == null || increasingProperty == null) return false;

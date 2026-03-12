@@ -55,7 +55,7 @@ public class GuesserGuide extends GeneralPlacementGuide {
 
         // First, try air placement if enabled
         boolean printInAir = Configs.PRINT_IN_AIR.getBooleanValue();
-        if (printInAir) {
+        if (printInAir && !getRequiresSupport()) {
             ItemStack requiredItem = getRequiredItem(player).orElse(ItemStack.EMPTY);
             int slot = getRequiredItemStackSlot(player);
 
@@ -126,6 +126,9 @@ public class GuesserGuide extends GeneralPlacementGuide {
     public boolean canExecute(LocalPlayer player) {
         if (targetState.getBlock() instanceof SlabBlock)
             return false; // Slabs are a special case
+
+        if (targetState.isAir())
+            return false; // Skip air targets
 
         return super.canExecute(player);
     }

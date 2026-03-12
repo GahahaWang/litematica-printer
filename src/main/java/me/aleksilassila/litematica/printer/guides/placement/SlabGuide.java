@@ -1,13 +1,20 @@
 package me.aleksilassila.litematica.printer.guides.placement;
 
+import me.aleksilassila.litematica.printer.Printer;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
+import me.aleksilassila.litematica.printer.config.Configs;
+import me.aleksilassila.litematica.printer.implementation.PrinterPlacementContext;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class SlabGuide extends GeneralPlacementGuide {
     public SlabGuide(SchematicBlockState state) {
@@ -45,6 +52,52 @@ public class SlabGuide extends GeneralPlacementGuide {
         }
 
         return resultList;
+    }
+
+    @Override
+    public PrinterPlacementContext getPlacementContext(LocalPlayer player) {
+        if (!Configs.PRINT_IN_AIR.getBooleanValue()) {
+            return super.getPlacementContext(player);
+        }
+
+        try {
+            Optional<ItemStack> requiredItem = getRequiredItem(player);
+            int requiredSlot = getRequiredItemStackSlot(player);
+
+            if (requiredItem.isEmpty() || requiredSlot == -1) {
+                return null;
+            }
+
+            SlabType targetSlabType = getProperty(state.targetState, SlabBlock.TYPE).orElse(SlabType.DOUBLE);
+            Direction hitSide = Direction.DOWN;
+            Vec3 hitVec = Vec3.atCenterOf(state.blockPos);
+
+            if (targetSlabType == SlabType.TOP) {
+                hitSide = Direction.DOWN;
+                hitVec = hitVec.add(0, 0.25, 0);
+            } else if (targetSlabType == SlabType.BOTTOM) {
+                hitSide = Direction.UP;
+                hitVec = hitVec.add(0, -0.25, 0);
+            } else if (targetSlabType == SlabType.DOUBLE) {
+                SlabType currentSlabType = getProperty(state.currentState, SlabBlock.TYPE).orElse(null);
+
+                if (currentSlabType == SlabType.TOP) {
+                    hitSide = Direction.DOWN;
+                    hitVec = hitVec.add(0, -0.25, 0);
+                } else if (currentSlabType == SlabType.BOTTOM) {
+                    hitSide = Direction.UP;
+                    hitVec = hitVec.add(0, 0.25, 0);
+                }
+            }
+
+            BlockHitResult blockHitResult = new BlockHitResult(hitVec, hitSide, state.blockPos, false);
+            return new PrinterPlacementContext(player, blockHitResult, requiredItem.get(), requiredSlot,
+                    null, false);
+        } catch (Exception e) {
+            Printer.logger.error("getPlacementContext(): Exception caught: {}", e.getMessage());
+            return null;
+        }
+
     }
 
     @Override

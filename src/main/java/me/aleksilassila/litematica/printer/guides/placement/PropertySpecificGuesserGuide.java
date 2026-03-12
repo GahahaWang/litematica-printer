@@ -41,6 +41,12 @@ public class PropertySpecificGuesserGuide extends GuesserGuide {
             BlockStateProperties.NOTE,
             BlockStateProperties.NOTEBLOCK_INSTRUMENT,
             BlockStateProperties.EXTENDED, // Piston
+            WallBlock.UP,
+            WallBlock.EAST,
+            WallBlock.SOUTH,
+            WallBlock.WEST,
+            WallBlock.NORTH,
+            WallBlock.WATERLOGGED,
 
     };
 

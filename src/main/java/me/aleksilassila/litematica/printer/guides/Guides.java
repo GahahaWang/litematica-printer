@@ -20,6 +20,9 @@ public class Guides {
     static {
         // registerGuide(SkipGuide.class, AbstractSignBlock.class, SkullBlock.class, BannerBlock.class);
 
+        // Break blocks first if they need to be removed
+        registerGuide(BreakBlockGuide.class);
+
         // Smart redstone checks (must be early in the list to skip blocks before other guides)
         registerGuide(SmartRedstoneGuide.class, PoweredBlock.class, TntBlock.class, PistonBaseBlock.class, ObserverBlock.class);
 
@@ -42,7 +45,7 @@ public class Guides {
                 SnowLayerBlock.class, SeaPickleBlock.class, CandleBlock.class, LeverBlock.class, EndPortalFrameBlock.class,
                 NoteBlock.class, CampfireBlock.class, PoweredRailBlock.class, LeavesBlock.class,
                 TripWireHookBlock.class,
-                ObserverBlock.class, PistonBaseBlock.class);
+                ObserverBlock.class, PistonBaseBlock.class, WallBlock.class);
         registerGuide(FallingBlockGuide.class, FallingBlock.class);
         registerGuide(BlockIndifferentGuesserGuide.class, BambooStalkBlock.class, BigDripleafStemBlock.class,
                 BigDripleafBlock.class,
