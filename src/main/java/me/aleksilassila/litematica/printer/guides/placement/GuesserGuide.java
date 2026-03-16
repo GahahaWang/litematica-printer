@@ -55,7 +55,7 @@ public class GuesserGuide extends GeneralPlacementGuide {
 
         // First, try air placement if enabled
         boolean printInAir = Configs.PRINT_IN_AIR.getBooleanValue();
-        if (printInAir) {
+        if (printInAir && !getRequiresSupport()) {
             ItemStack requiredItem = getRequiredItem(player).orElse(ItemStack.EMPTY);
             int slot = getRequiredItemStackSlot(player);
 
