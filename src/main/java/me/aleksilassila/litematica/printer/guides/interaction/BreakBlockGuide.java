@@ -1,6 +1,8 @@
 package me.aleksilassila.litematica.printer.guides.interaction;
 
+import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Hotkeys;
+import fi.dy.masa.litematica.util.IgnoreBlockRegistry;
 import me.aleksilassila.litematica.printer.LitematicaMixinMod;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.actions.Action;
@@ -19,13 +21,27 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fi.dy.masa.litematica.config.Configs.Visuals.IGNORE_EXISTING_BLOCKS;
+
 /**
  * A guide that breaks blocks that need to be removed before placing the correct block.
  */
 public class BreakBlockGuide extends Guide {
+    private static final long IGNORE_BLOCK_REGISTRY_REFRESH_INTERVAL_MS = 1000L;
+    private IgnoreBlockRegistry ignoreBlockRegistry = new IgnoreBlockRegistry();
+    private long ignoreBlockRegistryLastRefreshMs = System.currentTimeMillis();
     
     public BreakBlockGuide(SchematicBlockState state) {
         super(state);
+    }
+
+    private IgnoreBlockRegistry getIgnoreBlockRegistry() {
+        long now = System.currentTimeMillis();
+        if (now - ignoreBlockRegistryLastRefreshMs >= IGNORE_BLOCK_REGISTRY_REFRESH_INTERVAL_MS) {
+            ignoreBlockRegistry = new IgnoreBlockRegistry();
+            ignoreBlockRegistryLastRefreshMs = now;
+        }
+        return ignoreBlockRegistry;
     }
 
     @Override
@@ -46,6 +62,11 @@ public class BreakBlockGuide extends Guide {
             return false;
         }
 
+        // if state current block is in ignorable existing blocks do not break
+        if (IGNORE_EXISTING_BLOCKS.getBooleanValue() && getIgnoreBlockRegistry().hasBlock(state.currentState.getBlock())) {
+            return false;
+        }
+        
         // Skip certain blocks
         if (currentState.getBlock() instanceof SnowLayerBlock ||
             currentState.is(Blocks.WATER) || 
