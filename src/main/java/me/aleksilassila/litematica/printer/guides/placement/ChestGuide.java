@@ -33,6 +33,24 @@ public class ChestGuide extends GeneralPlacementGuide {
     }
 
     @Override
+    protected boolean getRequiresSupport() {
+        ChestType targetType = getProperty(targetState, ChestBlock.TYPE).orElse(ChestType.SINGLE);
+        if (targetType == ChestType.SINGLE) {
+            return false;
+        }
+
+        Direction targetFacing = getProperty(targetState, ChestBlock.FACING).orElse(null);
+        if (targetFacing == null) {
+            return false;
+        }
+
+        Direction neighborDirection = targetType == ChestType.LEFT
+                ? targetFacing.getClockWise()
+                : targetFacing.getCounterClockWise();
+        return willConnectToSide(state, neighborDirection);
+    }
+
+    @Override
     protected Optional<Direction> getLookDirection() {
         return getProperty(targetState, ChestBlock.FACING)
                 .flatMap(facing -> Optional.of(facing.getOpposite()));
