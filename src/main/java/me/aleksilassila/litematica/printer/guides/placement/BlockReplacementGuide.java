@@ -60,22 +60,28 @@ public class BlockReplacementGuide extends PlacementGuide {
         SlabType currentSlabType = Guide.getProperty(currentState, SlabBlock.TYPE).orElse(null);
         SlabType targetSlabType  = Guide.getProperty(targetState,  SlabBlock.TYPE).orElse(null);
         Direction hitSide = Direction.UP;
-        if (targetSlabType == SlabType.DOUBLE && currentSlabType == SlabType.TOP) {
-            hitSide = Direction.DOWN;
+        Vec3 hitVec = Vec3.atCenterOf(state.blockPos);
+        if (targetSlabType == SlabType.DOUBLE) {
+            if (currentSlabType == SlabType.TOP) {
+                hitSide = Direction.DOWN;
+                hitVec = hitVec.add(0, -0.25, 0);
+            } else if (currentSlabType == SlabType.BOTTOM) {
+                hitSide = Direction.UP;
+                hitVec = hitVec.add(0, 0.25, 0);
+            }
         }
 
-        BlockHitResult hitResult = new BlockHitResult(Vec3.atCenterOf(state.blockPos), hitSide, state.blockPos, false);
+        BlockHitResult hitResult = new BlockHitResult(hitVec, hitSide, state.blockPos, false);
         return new PrinterPlacementContext(player, hitResult, requiredItem.get(), slot);
     }
 
-
     @Override
     public boolean canExecute(LocalPlayer player) {
+        SlabType targetSlabType = Guide.getProperty(targetState, SlabBlock.TYPE).orElse(null);
+        SlabType currentSlabType = Guide.getProperty(currentState, SlabBlock.TYPE).orElse(null);
 
-        if (Guide.getProperty(targetState, SlabBlock.TYPE).orElse(null) == SlabType.DOUBLE
-                && Guide.getProperty(currentState, SlabBlock.TYPE).orElse(SlabType.DOUBLE) != SlabType.DOUBLE) {
-            if (!playerHasRightItem(player)) return false;
-            if (statesEqual(targetState, currentState)) return false;
+        if (targetSlabType == SlabType.DOUBLE && currentSlabType != SlabType.DOUBLE) {
+            if (currentState.getBlock() != targetState.getBlock()) return false;
             PrinterPlacementContext ctx = getPlacementContext(player);
             if (ctx == null || !ctx.canPlace()) return false;
             BlockState resultState = getRequiredItemAsBlock(player)

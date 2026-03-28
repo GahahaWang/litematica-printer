@@ -14,12 +14,8 @@ public class FallingBlockGuide extends GuesserGuide {
     }
 
     boolean blockPlacement() {
-        if (targetState.getBlock() instanceof FallingBlock) {
-            BlockState below = state.world.getBlockState(state.blockPos.relative(Direction.DOWN));
-            return !FallingBlock.isFree(below) || getRequiresSupport();
-        }
-
-        return false;
+        BlockState below = state.world.getBlockState(state.blockPos.relative(Direction.DOWN));
+        return !FallingBlock.isFree(below) || !getRequiresSupport();
     }
 
     @Override
@@ -29,7 +25,7 @@ public class FallingBlockGuide extends GuesserGuide {
 
     @Override
     public boolean canExecute(LocalPlayer player) {
-        return blockPlacement() || super.canExecute(player);
+        return blockPlacement() && super.canExecute(player);
     }
 
     @Override
