@@ -60,18 +60,19 @@ public class GuesserGuide extends GeneralPlacementGuide {
             int slot = getRequiredItemStackSlot(player);
 
             if (slot != -1) {
-                // Try different look directions to find a successful placement
                 for (Direction lookDirection : directionsToTry) {
-                    Vec3 hitVec = Vec3.atCenterOf(state.blockPos);
-                    BlockHitResult hitResult = new BlockHitResult(hitVec, lookDirection.getOpposite(), state.blockPos, false);
-                    boolean requiresShift = getRequiresExplicitShift() || isInteractive(state.world.getBlockState(state.blockPos.relative(lookDirection)).getBlock());
-                    PrinterPlacementContext context = new PrinterPlacementContext(player, hitResult, requiredItem, slot, lookDirection, requiresShift);
-                    BlockState result = getRequiredItemAsBlock(player)
-                            .orElse(targetState.getBlock())
-                            .getStateForPlacement(context);
-                    if (result != null && (statesEqual(result, targetState) || correctChestPlacement(targetState, result))) {
-                        contextCache = context;
-                        return context;
+                    for (Direction hitSide : directionsToTry) {
+                        Vec3 hitVec = Vec3.atCenterOf(state.blockPos);
+                        BlockHitResult hitResult = new BlockHitResult(hitVec, hitSide, state.blockPos, false);
+                        boolean requiresShift = getRequiresExplicitShift();// || isInteractive(state.world.getBlockState(state.blockPos.relative(hitSide.getOpposite())).getBlock());
+                        PrinterPlacementContext context = new PrinterPlacementContext(player, hitResult, requiredItem, slot, lookDirection, requiresShift);
+                        BlockState result = getRequiredItemAsBlock(player)
+                                .orElse(targetState.getBlock())
+                                .getStateForPlacement(context);
+                        if (result != null && (statesEqual(result, targetState) || correctChestPlacement(targetState, result))) {
+                            contextCache = context;
+                            return context;
+                        }
                     }
                 }
             }
