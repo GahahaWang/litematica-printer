@@ -23,6 +23,7 @@ public class Configs {
     public static final ConfigBoolean PRINT_IN_AIR = new ConfigBoolean("printInAir", false).apply(GENERIC_KEY);
     public static final ConfigBoolean FALLING_BLOCK_PRINT_IN_AIR = new ConfigBoolean("fallingBlockPrintInAir", false).apply(GENERIC_KEY);
     public static final ConfigInteger PRINTER_CACHE_MS = new ConfigInteger("printerCacheMs", 200, 0, 5000).apply(GENERIC_KEY);
+    public static final ConfigBoolean ROTATE = new ConfigBoolean("rotate", true).apply(GENERIC_KEY);
 
     public static ImmutableList<IConfigBase> getConfigList() {
         List<IConfigBase> list = new java.util.ArrayList<>(fi.dy.masa.litematica.config.Configs.Generic.OPTIONS);
@@ -36,6 +37,7 @@ public class Configs {
         list.add(PRINT_IN_AIR);
         list.add(FALLING_BLOCK_PRINT_IN_AIR);
         list.add(PRINTER_CACHE_MS);
+        list.add(ROTATE);
 
         return ImmutableList.copyOf(list);
     }
