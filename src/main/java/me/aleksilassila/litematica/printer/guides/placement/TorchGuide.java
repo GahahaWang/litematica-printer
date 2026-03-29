@@ -24,6 +24,11 @@ public class TorchGuide extends GeneralPlacementGuide {
     }
 
     @Override
+    public boolean getRequiresSupport() {
+        return true;
+    }
+
+    @Override
     protected Optional<Block> getRequiredItemAsBlock(LocalPlayer player) {
         return Optional.of(state.targetState.getBlock());
     }
