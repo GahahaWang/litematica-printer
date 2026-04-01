@@ -28,7 +28,7 @@ public class Guides {
 
         registerGuide(RotatingBlockGuide.class, AbstractSkullBlock.class, SignBlock.class, AbstractBannerBlock.class);
         registerGuide(SlabGuide.class, SlabBlock.class);
-        registerGuide(TorchGuide.class, TorchBlock.class);
+        registerGuide(TorchGuide.class, BaseTorchBlock.class);
         registerGuide(FarmlandGuide.class, FarmBlock.class);
         registerGuide(TillingGuide.class, FarmBlock.class);
         registerGuide(RailGuesserGuide.class, BaseRailBlock.class);
@@ -44,8 +44,9 @@ public class Guides {
                 ChestBlock.class,
                 SnowLayerBlock.class, SeaPickleBlock.class, CandleBlock.class, LeverBlock.class, EndPortalFrameBlock.class,
                 NoteBlock.class, CampfireBlock.class, PoweredRailBlock.class, LeavesBlock.class,
-                TripWireHookBlock.class,
-                ObserverBlock.class, PistonBaseBlock.class, WallBlock.class);
+                TripWireHookBlock.class, WallBlock.class,
+                ObserverBlock.class, PistonBaseBlock.class, ComposterBlock.class, HopperBlock.class, DispenserBlock.class,
+                CopperBulbBlock.class);
         registerGuide(FallingBlockGuide.class, FallingBlock.class);
         registerGuide(BlockIndifferentGuesserGuide.class, BambooStalkBlock.class, BigDripleafStemBlock.class,
                 BigDripleafBlock.class,
