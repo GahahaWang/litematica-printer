@@ -13,6 +13,7 @@ import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.config.Hotkeys;
 import me.aleksilassila.litematica.printer.guides.Guide;
 import me.aleksilassila.litematica.printer.guides.Guides;
+import me.aleksilassila.litematica.printer.utils.PositionCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -27,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Printer {
@@ -36,7 +36,7 @@ public class Printer {
     public final LocalPlayer player;
     public final ActionHandler actionHandler;
     private final Guides interactionGuides = new Guides();
-    private static final LinkedHashMap<Long, PositionCache> positionCache = new LinkedHashMap<>();
+    private final PositionCache positionCache = new PositionCache();
 
     public Printer(@Nonnull Minecraft client, @Nonnull LocalPlayer player) {
         this.player = player;
@@ -68,10 +68,11 @@ public class Printer {
             return false;
         }
 
+        positionCache.pruneExpiredCacheEntries();
         List<BlockPos> positions = getReachablePositions();
         findBlock:
         for (BlockPos position : positions) {
-            if (isPositionCached(position)) {
+            if (positionCache.isPositionCached(position)) {
                 continue;
             }
             SchematicBlockState state = new SchematicBlockState(player.level(), worldSchematic, position);
@@ -95,8 +96,8 @@ public class Printer {
                     printDebug("Executing {} for {}", guide, state);
                     List<Action> actions = guide.execute(player);
                     actionHandler.addActions(actions.toArray(Action[]::new));
-                    cachePosition(position);
                     return true;
+                    positionCache.cachePosition(position);
                 }
                 if (guide.skipOtherGuides()) {
                     continue findBlock;
@@ -110,18 +111,49 @@ public class Printer {
     private List<BlockPos> getReachablePositions() {
         int maxReach = (int) Math.ceil(Configs.PRINTING_RANGE.getDoubleValue());
         double maxReachSquared = Mth.square(Configs.PRINTING_RANGE.getDoubleValue());
+        List<BoxBounds> activeBounds = getActiveSchematicBounds();
 
-        ArrayList<BlockPos> positions = new ArrayList<>();
+        if (activeBounds.isEmpty()) {
+            return List.of();
+        }
 
-        for (int y = -maxReach; y < maxReach + 1; y++) {
-            for (int x = -maxReach; x < maxReach + 1; x++) {
-                for (int z = -maxReach; z < maxReach + 1; z++) {
-                    BlockPos blockPos = player.blockPosition().north(x).west(z).above(y);
+        BlockPos playerBlockPos = this.player.blockPosition();
+        int baseX = playerBlockPos.getX();
+        int baseY = playerBlockPos.getY();
+        int baseZ = playerBlockPos.getZ();
+        Vec3 playerPos = this.player.position();
+        Vec3 eyePos = this.player.getEyePosition();
+
+        int diameter = maxReach * 2 + 1;
+        ArrayList<BlockPos> positions = new ArrayList<>(diameter * diameter * diameter);
+
+        for (int y = -maxReach; y <= maxReach; y++) {
+            int blockY = baseY + y;
+            for (int x = -maxReach; x <= maxReach; x++) {
+                int blockZ = baseZ - x;
+
+                for (int z = -maxReach; z <= maxReach; z++) {
+                    int blockX = baseX - z;
+                    BlockPos blockPos = new BlockPos(blockX, blockY, blockZ);
 
                     if (!DataManager.getRenderLayerRange().isPositionWithinRange(blockPos)) {
                         continue;
                     }
-                    if (this.player.getEyePosition().distanceToSqr(Vec3.atCenterOf(blockPos)) > maxReachSquared) {
+
+                    double centerX = blockX + 0.5D;
+                    double centerY = blockY + 0.5D;
+                    double centerZ = blockZ + 0.5D;
+
+                    double eyeDistanceSquared = eyePos.distanceToSqr(centerX, centerY, centerZ);
+                    if (eyeDistanceSquared > maxReachSquared || eyeDistanceSquared <= 1D) {
+                        continue;
+                    }
+
+                    if (playerPos.distanceToSqr(centerX, centerY, centerZ) <= 1D) {
+                        continue;
+                    }
+
+                    if (!isPositionInSchematicBounds(blockPos, activeBounds)) {
                         continue;
                     }
 
@@ -130,65 +162,55 @@ public class Printer {
             }
         }
 
-        return positions.stream()
-                .filter(p ->
-                {
-                    Vec3 vec = Vec3.atCenterOf(p);
-                    return this.player.position().distanceToSqr(vec) > 1
-                            && this.player.getEyePosition().distanceToSqr(vec) > 1
-                            && isPositionInSchematicBounds(p);
-                })
-                .sorted((a, b) ->
-                {
-                    double aDistance = this.player.position().distanceToSqr(Vec3.atCenterOf(a));
-                    double bDistance = this.player.position().distanceToSqr(Vec3.atCenterOf(b));
-                    return Double.compare(aDistance, bDistance);
-                }).toList();
+        positions.sort((a, b) -> {
+            double aDistance = playerPos.distanceToSqr(a.getX() + 0.5D, a.getY() + 0.5D, a.getZ() + 0.5D);
+            double bDistance = playerPos.distanceToSqr(b.getX() + 0.5D, b.getY() + 0.5D, b.getZ() + 0.5D);
+            return Double.compare(aDistance, bDistance);
+        });
+
+        return positions;
     }
 
-    private boolean isPositionInSchematicBounds(BlockPos pos) {
+    private List<BoxBounds> getActiveSchematicBounds() {
         List<SchematicPlacement> placements = DataManager.getSchematicPlacementManager().getAllSchematicsPlacements();
-        
         if (placements.isEmpty()) {
-            return false;
+            return List.of();
         }
-        
+
+        ArrayList<BoxBounds> bounds = new ArrayList<>();
+
         for (SchematicPlacement placement : placements) {
             if (!placement.isEnabled()) {
                 continue;
             }
-            
+
             ImmutableMap<String, Box> boxes = placement.getSubRegionBoxes(SubRegionPlacement.RequiredEnabled.PLACEMENT_ENABLED);
-            
             for (Box box : boxes.values()) {
-                if (isPositionWithinBox(box, pos)) {
-                    return true;
+                BlockPos pos1 = box.getPos1();
+                BlockPos pos2 = box.getPos2();
+                if (pos1 == null || pos2 == null) {
+                    continue;
                 }
+                bounds.add(new BoxBounds(
+                        Math.min(pos1.getX(), pos2.getX()),
+                        Math.max(pos1.getX(), pos2.getX()),
+                        Math.min(pos1.getY(), pos2.getY()),
+                        Math.max(pos1.getY(), pos2.getY()),
+                        Math.min(pos1.getZ(), pos2.getZ()),
+                        Math.max(pos1.getZ(), pos2.getZ())
+                ));
             }
         }
-        
-        return false;
+        return bounds;
     }
-    
 
-    private boolean isPositionWithinBox(Box box, BlockPos pos) {
-        if (box == null) {
-            return false;
+    private boolean isPositionInSchematicBounds(BlockPos pos, List<BoxBounds> bounds) {
+        for (BoxBounds boxBounds : bounds) {
+            if (boxBounds.contains(pos)) {
+                return true;
+            }
         }
-        
-        BlockPos pos1 = box.getPos1();
-        BlockPos pos2 = box.getPos2();
-        
-        int minX = Math.min(pos1.getX(), pos2.getX());
-        int maxX = Math.max(pos1.getX(), pos2.getX());
-        int minY = Math.min(pos1.getY(), pos2.getY());
-        int maxY = Math.max(pos1.getY(), pos2.getY());
-        int minZ = Math.min(pos1.getZ(), pos2.getZ());
-        int maxZ = Math.max(pos1.getZ(), pos2.getZ());
-        
-        return pos.getX() >= minX && pos.getX() <= maxX &&
-               pos.getY() >= minY && pos.getY() <= maxY &&
-               pos.getZ() >= minZ && pos.getZ() <= maxZ;
+        return false;
     }
 
     public static void printDebug(String key, Object... args) {
@@ -197,51 +219,27 @@ public class Printer {
         }
     }
 
-    public static boolean isPositionCached(BlockPos pos) {
-        long currentTime = System.nanoTime();
-        boolean cached = false;
-        
-        for (Long key : List.copyOf(positionCache.keySet())) {
-            PositionCache val = positionCache.get(key);
-            boolean expired = val.hasExpired(currentTime);
+    private static final class BoxBounds {
+        private final int minX;
+        private final int maxX;
+        private final int minY;
+        private final int maxY;
+        private final int minZ;
+        private final int maxZ;
 
-            if (expired) {
-                positionCache.remove(key);
-            } else if (val.getPos().equals(pos)) {
-                cached = true;
-                // Keep checking and removing old entries if there are a fair amount
-                if (positionCache.size() < 16) {
-                    break;
-                }
-            }
-        }
-        return cached;
-    }
-
-    public static void cachePosition(BlockPos pos) {
-        cachePosition(pos, Configs.PRINTER_CACHE_MS.getIntegerValue());
-    }
-
-    public static void cachePosition(BlockPos pos, int milliseconds) {
-        PositionCache item = new PositionCache(pos, System.nanoTime(), milliseconds * 1000000L);
-        positionCache.put(pos.asLong(), item);
-    }
-
-    public static class PositionCache {
-        private final BlockPos pos;
-        private final long timeout;
-
-        private PositionCache(BlockPos pos, long time, long timeout) {
-            this.pos = pos;
-            this.timeout = time + timeout;
+        private BoxBounds(int minX, int maxX, int minY, int maxY, int minZ, int maxZ) {
+            this.minX = minX;
+            this.maxX = maxX;
+            this.minY = minY;
+            this.maxY = maxY;
+            this.minZ = minZ;
+            this.maxZ = maxZ;
         }
 
-        public BlockPos getPos() {
-            return pos;
-        }
-
-        public boolean hasExpired(long currentTime) {
-            return currentTime > this.timeout;
+        private boolean contains(BlockPos pos) {
+            return pos.getX() >= minX && pos.getX() <= maxX
+                    && pos.getY() >= minY && pos.getY() <= maxY
+                    && pos.getZ() >= minZ && pos.getZ() <= maxZ;
         }
     }
 }
