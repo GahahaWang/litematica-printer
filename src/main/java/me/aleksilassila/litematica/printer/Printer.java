@@ -93,8 +93,8 @@ public class Printer {
                     printDebug("Executing {} for {}", guide, state);
                     List<Action> actions = guide.execute(player);
                     actionHandler.addActions(actions.toArray(Action[]::new));
-                    return true;
                     positionCache.cachePosition(position);
+                    return true;
                 }
                 if (guide.skipOtherGuides()) {
                     continue findBlock;
