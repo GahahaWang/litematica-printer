@@ -24,6 +24,7 @@ public class PrepareAction extends Action {
     public PrepareAction(PrinterPlacementContext context) {
         this.context = context;
         Direction lookDirection = context.lookDirection;
+        Direction verticalDirection = context.getNearestLookingVerticalDirection();
 
         if (lookDirection != null && lookDirection.getAxis().isHorizontal()) {
             this.yaw = lookDirection.toYRot();
@@ -35,8 +36,12 @@ public class PrepareAction extends Action {
             this.pitch = -90;
         } else if (lookDirection == Direction.DOWN) {
             this.pitch = 90;
-        } else if (lookDirection != null) {
-            this.pitch = 0;
+        } else if (lookDirection != null && lookDirection.getAxis().isHorizontal()) {
+            if (verticalDirection == Direction.UP) {
+                this.pitch = -1.0F;
+            } else if (verticalDirection == Direction.DOWN) {
+                this.pitch = 1.0F;
+            }
         } else {
             this.modifyPitch = false;
         }

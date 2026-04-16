@@ -21,7 +21,9 @@ public class MultiPlayerGameModeMixin {
 
         PrepareAction action = printer.actionHandler.lookAction;
         if (action != null && (action.modifyYaw || action.modifyPitch)) {
-            return LocalPlayerRotationWrapper.getInstance().rot(action.yaw, action.pitch);
+            float yaw = action.modifyYaw ? action.yaw : originalPlayer.getYRot();
+            float pitch = action.modifyPitch ? action.pitch : originalPlayer.getXRot();
+            return LocalPlayerRotationWrapper.getInstance().rot(yaw, pitch);
         }
 
         return originalPlayer;

@@ -76,10 +76,11 @@ public class Breaker implements IClientTickHandler {
         if (this.mc.player != null) {
             Vec3 playerPos = this.mc.player.position();
             Vec3 blockCenter = Vec3.atCenterOf(this.pos);
-            double distance = playerPos.distanceTo(blockCenter);
+            double distanceSquared = playerPos.distanceToSqr(blockCenter);
             double maxReach = Configs.PRINTING_RANGE.getDoubleValue();
+            double maxReachSquared = maxReach * maxReach;
 
-            if (distance > maxReach) {
+            if (distanceSquared > maxReachSquared) {
                 cancelBreaking();
                 return false;
             }

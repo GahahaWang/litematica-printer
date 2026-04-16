@@ -78,17 +78,14 @@ public class Printer {
             SchematicBlockState state = new SchematicBlockState(player.level(), worldSchematic, position);
             BlockState cs = state.currentState;
             BlockState ts = state.targetState;
-            if (ts.equals(cs) || (cs.is(Blocks.MOVING_PISTON))) {
+            if (ts.equals(cs) || cs.is(Blocks.MOVING_PISTON)) {
                 continue;
             }
-            if(!cs.isAir() && !cs.is(ts.getBlock()) && !Configs.BREAK_BLOCKS.getBooleanValue()) {
-                continue ;
+            if (!cs.isAir() && !cs.is(ts.getBlock()) && !Configs.BREAK_BLOCKS.getBooleanValue()) {
+                continue;
             }
 
             Guide[] guides = interactionGuides.getInteractionGuides(state);
-
-            BlockHitResult result = RayTraceUtils.traceToSchematicWorld(player, 10, true, true);
-            boolean isCurrentlyLookingSchematic = result != null && result.getBlockPos().equals(position);
 
             for (Guide guide : guides) {
                 // Add INTERACT_BLOCKS pull by DarkReaper231
