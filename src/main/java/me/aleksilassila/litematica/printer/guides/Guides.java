@@ -48,7 +48,7 @@ public class Guides {
                 NoteBlock.class, CampfireBlock.class, PoweredRailBlock.class, LeavesBlock.class,
                 TripWireHookBlock.class, WallBlock.class,
                 ObserverBlock.class, PistonBaseBlock.class, ComposterBlock.class, HopperBlock.class, DispenserBlock.class,
-                CopperBulbBlock.class);
+                CopperBulbBlock.class, RedstoneLampBlock.class, DaylightDetectorBlock.class);
         registerGuide(FallingBlockGuide.class, FallingBlock.class);
         registerGuide(BlockIndifferentGuesserGuide.class, BambooStalkBlock.class, BigDripleafStemBlock.class,
                 BigDripleafBlock.class,

@@ -44,7 +44,7 @@ public class ActionHandler {
         return actionQueue.isEmpty();
     }
 
-    public void addActions(Action... actions) {
+    public void addActions(List<Action> actions) {
         if (!acceptsActions()) {
             return;
         }
@@ -55,6 +55,6 @@ public class ActionHandler {
             }
         }
 
-        actionQueue.addAll(List.of(actions));
+        actionQueue.addAll(actions);
     }
 }

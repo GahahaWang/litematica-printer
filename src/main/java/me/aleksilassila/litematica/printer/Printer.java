@@ -5,7 +5,6 @@ import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
 import fi.dy.masa.litematica.selection.Box;
-import fi.dy.masa.litematica.util.RayTraceUtils;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
 import me.aleksilassila.litematica.printer.actions.Action;
@@ -21,7 +20,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,11 +86,10 @@ public class Printer {
             Guide[] guides = interactionGuides.getInteractionGuides(state);
 
             for (Guide guide : guides) {
-                // Add INTERACT_BLOCKS pull by DarkReaper231
                 if (guide.canExecute(player) && Configs.INTERACT_BLOCKS.getBooleanValue()) {
                     printDebug("Executing {} for {}", guide, state);
                     List<Action> actions = guide.execute(player);
-                    actionHandler.addActions(actions.toArray(Action[]::new));
+                    actionHandler.addActions(actions);
                     positionCache.cachePosition(position);
                     return true;
                 }
