@@ -49,6 +49,7 @@ public class PropertySpecificGuesserGuide extends GuesserGuide {
             WallBlock.WEST,
             WallBlock.NORTH,
             WallBlock.WATERLOGGED,
+            ComposterBlock.LEVEL
 
     };
 
