@@ -1,5 +1,5 @@
 plugins {
-    id("fabric-loom").version("1.15-SNAPSHOT")
+    id("fabric-loom").version("1.16-SNAPSHOT")
     id("maven-publish")
 }
 
@@ -55,6 +55,15 @@ dependencies {
     // For Mod Menu display
     modCompileOnly("com.terraformersmc:modmenu:${mod_menu_version}")
 //    modRuntimeOnly("me.fallenbreath:mixin-auditor:0.1.0")
+
+    //val bedrockMinerJar = file("bedrock-miner-1.4.10.jar")
+    //if (bedrockMinerJar.exists()) {
+    //   modImplementation(files(bedrockMinerJar))
+    //}
+    //if (rootProject.file("../hasteless-bedrock-breaker").exists()) {
+    //    modCompileOnly("com.github.bunnyi116.bedrockminer:bedrock-miner")
+    //}
+
 }
 
 loom {

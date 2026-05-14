@@ -4,6 +4,7 @@ import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import fi.dy.masa.malilib.util.EquipmentUtils;
 import me.aleksilassila.litematica.printer.Printer;
+import me.aleksilassila.litematica.printer.config.BreakerOption;
 import me.aleksilassila.litematica.printer.config.Configs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -67,7 +68,7 @@ public class Breaker implements IClientTickHandler {
             return false;
         }
 
-        if (!Configs.PRINT_MODE.getBooleanValue() || !Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().isPressed()) {
+        if (!isBreakerAllowed()) {
             cancelBreaking();
             return false;
         }
@@ -107,6 +108,14 @@ public class Breaker implements IClientTickHandler {
                 this.mc.gameMode.stopDestroyBlock();
             }
         }
+    }
+
+    public static boolean isBreakerAllowed() {
+        if (!Configs.PRINT_MODE.getBooleanValue()) {
+            return false;
+        }
+        BreakerOption option = (BreakerOption) Configs.BREAKER_OPTION.getOptionListValue();
+        return option == BreakerOption.AUTO || Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().isPressed();
     }
 
     public static int getBestItemSlotIdToMineBlock(Minecraft mc, BlockPos blockToMine) {
@@ -162,12 +171,9 @@ public class Breaker implements IClientTickHandler {
             return;
         }
 
-        // Only continue mining while the correct keys are pressed
-        if (Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().isPressed()) {
-            Direction side = Direction.UP;
-            if (this.mc.gameMode.continueDestroyBlock(pos, side)) {
-                this.mc.player.swing(InteractionHand.MAIN_HAND);
-            }
+        Direction side = Direction.UP;
+        if (this.mc.gameMode.continueDestroyBlock(pos, side)) {
+            this.mc.player.swing(InteractionHand.MAIN_HAND);
         }
 
         // Check if block is broken

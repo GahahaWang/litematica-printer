@@ -1,24 +1,26 @@
 package me.aleksilassila.litematica.printer.guides.interaction;
 
-import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.litematica.util.IgnoreBlockRegistry;
 import me.aleksilassila.litematica.printer.LitematicaMixinMod;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.actions.Action;
 import me.aleksilassila.litematica.printer.actions.BreakBlockAction;
+import me.aleksilassila.litematica.printer.config.BreakerOption;
 import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.guides.Guide;
+import me.aleksilassila.litematica.printer.utils.BedrockMinerCompact;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.SnowLayerBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static fi.dy.masa.litematica.config.Configs.Visuals.IGNORE_EXISTING_BLOCKS;
@@ -30,6 +32,7 @@ public class BreakBlockGuide extends Guide {
     private static final long IGNORE_BLOCK_REGISTRY_REFRESH_INTERVAL_MS = 1000L;
     private IgnoreBlockRegistry ignoreBlockRegistry = new IgnoreBlockRegistry();
     private long ignoreBlockRegistryLastRefreshMs = System.currentTimeMillis();
+    private static final HashSet<Block> STRICK_DEFAULT_IGNORELIST = getDefaultBlockBlacklistServer();
     
     public BreakBlockGuide(SchematicBlockState state) {
         super(state);
@@ -50,7 +53,7 @@ public class BreakBlockGuide extends Guide {
             return false;
         }
 
-        if (!Configs.PRINT_MODE.getBooleanValue() || !Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().isPressed()) {
+        if (!isBreakerAllowed()) {
             return false;
         }
 
@@ -66,20 +69,9 @@ public class BreakBlockGuide extends Guide {
         if (IGNORE_EXISTING_BLOCKS.getBooleanValue() && getIgnoreBlockRegistry().hasBlock(state.currentState.getBlock())) {
             return false;
         }
-        
+
         // Skip certain blocks
-        if (currentState.getBlock() instanceof SnowLayerBlock ||
-            currentState.is(Blocks.WATER) || 
-            currentState.is(Blocks.LAVA) ||
-            currentState.is(Blocks.BUBBLE_COLUMN) ||
-            currentState.is(Blocks.PISTON_HEAD) ||
-            currentState.is(Blocks.MOVING_PISTON) ||
-            currentState.is(Blocks.BEDROCK) ||
-            currentState.is(Blocks.VAULT) ||
-            currentState.is(Blocks.TRIAL_SPAWNER)
-        ) {
-            return false;
-        }
+        if (STRICK_DEFAULT_IGNORELIST.contains(currentState.getBlock())) { return false; }
 
         // Determine if breaking is needed
         boolean needsBreaking = !currentState.getBlock().getName().equals(targetState.getBlock().getName());
@@ -93,10 +85,15 @@ public class BreakBlockGuide extends Guide {
         return needsBreaking;
     }
 
+    private boolean isBreakerAllowed() {
+        if (!Configs.PRINT_MODE.getBooleanValue()) {
+            return false;
+        }
+        BreakerOption option = (BreakerOption) Configs.BREAKER_OPTION.getOptionListValue();
+        return option == BreakerOption.AUTO || Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().isPressed();
+    }
+
     public boolean isUnrepealableSlabState(SchematicBlockState state) {
-        BlockState cs = state.currentState;
-        BlockState ts = state.targetState;
-        if (!cs.is(ts.getBlock())) return false;
         SlabType currentType = currentState.getValue(SlabBlock.TYPE);
         SlabType targetType = targetState.getValue(SlabBlock.TYPE);
         if (targetType == SlabType.DOUBLE) return false;
@@ -115,6 +112,12 @@ public class BreakBlockGuide extends Guide {
     @Override
     public @Nonnull List<Action> execute(LocalPlayer player) {
         List<Action> actions = new ArrayList<>();
+
+        if (Configs.BREAKER_USE_BEDROCK_MINER.getBooleanValue()) {
+            if (tryDelegateToBedrockMiner(player)) {
+                return actions;
+            }
+        }
         
         actions.add(new BreakBlockAction(state.blockPos, LitematicaMixinMod.breaker));
         
@@ -129,5 +132,41 @@ public class BreakBlockGuide extends Guide {
     @Override
     public boolean skipOtherGuides() {
         return false;
+    }
+
+    private boolean tryDelegateToBedrockMiner(LocalPlayer player) {
+        if (!BedrockMinerCompact.isBedrockMinerAvailable()) {
+            return false;
+        }
+        if (!BedrockMinerCompact.isWorking()) {
+            return false;
+        }
+        if (!BedrockMinerCompact.canHandleBlock(currentState.getBlock(), state.blockPos)) {
+            return false;
+        }
+        if (!(player.level() instanceof ClientLevel clientLevel)) {
+            return false;
+        }
+        return BedrockMinerCompact.addTask(currentState.getBlock(), state.blockPos, clientLevel);
+    }
+
+
+    private static HashSet<Block> getDefaultBlockBlacklistServer() {
+        // Default block blacklist (applied on remote servers, separate from the user blacklist)
+        var set = new HashSet<Block>();
+        set.add(Blocks.BARRIER);                    // barrier
+        set.add(Blocks.COMMAND_BLOCK);              // command block
+        set.add(Blocks.CHAIN_COMMAND_BLOCK);        // chain command block
+        set.add(Blocks.REPEATING_COMMAND_BLOCK);    // repeating command block
+        set.add(Blocks.STRUCTURE_VOID);             // structure void
+        set.add(Blocks.STRUCTURE_BLOCK);            // structure block
+        set.add(Blocks.JIGSAW);                     // jigsaw block
+        set.add(Blocks.MOVING_PISTON);
+        set.add(Blocks.PISTON_HEAD);
+        set.add(Blocks.BUBBLE_COLUMN);
+        set.add(Blocks.LAVA);
+        set.add(Blocks.WATER);
+        set.add(Blocks.WATER_CAULDRON);
+        return set;
     }
 }

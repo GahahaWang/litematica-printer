@@ -30,6 +30,9 @@
     "malilib": ">=0.27.0- <0.28.0-",
     "litematica": ">=0.25.0- <0.27.0-"
   },
+  "recommends": {
+    "bedrockminer": "*"
+  },
   "breaks": {
     "malilib": "<0.27.3-",
     "litematica": "<0.25.4-"

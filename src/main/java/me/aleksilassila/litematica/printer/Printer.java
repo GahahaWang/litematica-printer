@@ -12,6 +12,7 @@ import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.config.Hotkeys;
 import me.aleksilassila.litematica.printer.guides.Guide;
 import me.aleksilassila.litematica.printer.guides.Guides;
+import me.aleksilassila.litematica.printer.utils.BedrockMinerCompact;
 import me.aleksilassila.litematica.printer.utils.PositionCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -41,7 +42,7 @@ public class Printer {
         this.actionHandler = new ActionHandler(client, player);
     }
 
-    public boolean onGameTick() {
+    public boolean onGameTick(){
         WorldSchematic worldSchematic = SchematicWorldHandler.getSchematicWorld();
 
         if (!actionHandler.acceptsActions()) {
@@ -58,6 +59,10 @@ public class Printer {
 
         if (LitematicaMixinMod.breaker.isBreakingBlock()) {
             printDebug("Breaker is currently breaking a block, skipping other operations");
+            return false;
+        }
+        if (BedrockMinerCompact.isProcessing()) {
+            printDebug("Bedrock Miner is currently breaking a block, skipping other operations");
             return false;
         }
 
