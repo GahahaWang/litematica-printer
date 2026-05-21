@@ -21,7 +21,9 @@ public class Guides {
         // registerGuide(SkipGuide.class, AbstractSignBlock.class, SkullBlock.class, BannerBlock.class);
 
         // Break blocks first if they need to be removed
+        registerGuide(BedrockMinerGuide.class);
         registerGuide(BreakBlockGuide.class);
+        //registerGuide(ClearFluidGuide.class, LiquidBlock.class);
 
         // Smart redstone checks (must be early in the list to skip blocks before other guides)
         registerGuide(SmartRedstoneGuide.class, PoweredBlock.class, TntBlock.class, PistonBaseBlock.class, ObserverBlock.class);

@@ -61,7 +61,7 @@ public class Printer {
             printDebug("Breaker is currently breaking a block, skipping other operations");
             return false;
         }
-        if (BedrockMinerCompact.isProcessing()) {
+        if (BedrockMinerCompact.isBreakingBlock()) {
             printDebug("Bedrock Miner is currently breaking a block, skipping other operations");
             return false;
         }
@@ -81,9 +81,14 @@ public class Printer {
             SchematicBlockState state = new SchematicBlockState(player.level(), worldSchematic, position);
             BlockState cs = state.currentState;
             BlockState ts = state.targetState;
+            //boolean shouldFillFluid = ClearFluidGuide.shouldProcessPosition(state);
+            //boolean shouldKeepFillBlock = ClearFluidGuide.shouldKeepFillBlock(state);
             if (ts.equals(cs) || cs.is(Blocks.MOVING_PISTON)) {
                 continue;
             }
+            //if(!shouldFillFluid) {
+            //    continue;
+            //}
             if (!cs.isAir() && !cs.is(ts.getBlock()) && !Configs.BREAK_BLOCKS.getBooleanValue()) {
                 continue;
             }

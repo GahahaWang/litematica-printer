@@ -16,6 +16,7 @@ val mod_menu_version: String by project
 
 val archives_base_name: String by project
 val mod_version: String by project
+val bedrock_miner_version: String by project
 
 java {
     withSourcesJar()
@@ -32,6 +33,7 @@ repositories {
     //maven("https://www.cursemaven.com")
     maven("https://maven.terraformersmc.com/releases/")
     maven("https://maven.fallenbreath.me/releases")
+    maven( "https://api.modrinth.com/maven" )
 }
 
 dependencies {
@@ -63,6 +65,7 @@ dependencies {
     //if (rootProject.file("../hasteless-bedrock-breaker").exists()) {
     //    modCompileOnly("com.github.bunnyi116.bedrockminer:bedrock-miner")
     //}
+    modImplementation("maven.modrinth:next-fabric-bedrock-miner:${bedrock_miner_version}")
 
 }
 

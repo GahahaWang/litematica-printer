@@ -9,8 +9,6 @@ import me.aleksilassila.litematica.printer.actions.BreakBlockAction;
 import me.aleksilassila.litematica.printer.config.BreakerOption;
 import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.guides.Guide;
-import me.aleksilassila.litematica.printer.utils.BedrockMinerCompact;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -32,13 +30,13 @@ public class BreakBlockGuide extends Guide {
     private static final long IGNORE_BLOCK_REGISTRY_REFRESH_INTERVAL_MS = 1000L;
     private IgnoreBlockRegistry ignoreBlockRegistry = new IgnoreBlockRegistry();
     private long ignoreBlockRegistryLastRefreshMs = System.currentTimeMillis();
-    private static final HashSet<Block> STRICK_DEFAULT_IGNORELIST = getDefaultBlockBlacklistServer();
-    
+    private static final HashSet<Block> STRICK_IGNORELIST = getDefaultBlockBlacklistServer();
+
     public BreakBlockGuide(SchematicBlockState state) {
         super(state);
     }
 
-    private IgnoreBlockRegistry getIgnoreBlockRegistry() {
+    protected IgnoreBlockRegistry getIgnoreBlockRegistry() {
         long now = System.currentTimeMillis();
         if (now - ignoreBlockRegistryLastRefreshMs >= IGNORE_BLOCK_REGISTRY_REFRESH_INTERVAL_MS) {
             ignoreBlockRegistry = new IgnoreBlockRegistry();
@@ -49,13 +47,13 @@ public class BreakBlockGuide extends Guide {
 
     @Override
     public boolean canExecute(LocalPlayer player) {
-        if (!Configs.BREAK_BLOCKS.getBooleanValue()) {
-            return false;
-        }
-
         if (!isBreakerAllowed()) {
             return false;
         }
+
+        //if (ClearFluidGuide.shouldKeepFillBlock(state)) {
+        //    return false;
+        //}
 
         if (statesEqual(targetState, currentState)) {
             return false;
@@ -71,7 +69,7 @@ public class BreakBlockGuide extends Guide {
         }
 
         // Skip certain blocks
-        if (STRICK_DEFAULT_IGNORELIST.contains(currentState.getBlock())) { return false; }
+        if (STRICK_IGNORELIST.contains(currentState.getBlock())) { return false; }
 
         // Determine if breaking is needed
         boolean needsBreaking = !currentState.getBlock().getName().equals(targetState.getBlock().getName());
@@ -79,21 +77,21 @@ public class BreakBlockGuide extends Guide {
         if (!needsBreaking &&
             currentState.getBlock() instanceof SlabBlock &&
             targetState.getBlock() instanceof SlabBlock) {
-            needsBreaking = isUnrepealableSlabState(state);
+            needsBreaking = isUnrepealableSlabState();
         }
 
         return needsBreaking;
     }
 
-    private boolean isBreakerAllowed() {
-        if (!Configs.PRINT_MODE.getBooleanValue()) {
+    protected boolean isBreakerAllowed() {
+        if (!Configs.BREAK_BLOCKS.getBooleanValue()) {
             return false;
         }
         BreakerOption option = (BreakerOption) Configs.BREAKER_OPTION.getOptionListValue();
         return option == BreakerOption.AUTO || Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().isPressed();
     }
 
-    public boolean isUnrepealableSlabState(SchematicBlockState state) {
+    public boolean isUnrepealableSlabState() {
         SlabType currentType = currentState.getValue(SlabBlock.TYPE);
         SlabType targetType = targetState.getValue(SlabBlock.TYPE);
         if (targetType == SlabType.DOUBLE) return false;
@@ -112,15 +110,7 @@ public class BreakBlockGuide extends Guide {
     @Override
     public @Nonnull List<Action> execute(LocalPlayer player) {
         List<Action> actions = new ArrayList<>();
-
-        if (Configs.BREAKER_USE_BEDROCK_MINER.getBooleanValue()) {
-            if (tryDelegateToBedrockMiner(player)) {
-                return actions;
-            }
-        }
-        
         actions.add(new BreakBlockAction(state.blockPos, LitematicaMixinMod.breaker));
-        
         return actions;
     }
 
@@ -133,23 +123,6 @@ public class BreakBlockGuide extends Guide {
     public boolean skipOtherGuides() {
         return false;
     }
-
-    private boolean tryDelegateToBedrockMiner(LocalPlayer player) {
-        if (!BedrockMinerCompact.isBedrockMinerAvailable()) {
-            return false;
-        }
-        if (!BedrockMinerCompact.isWorking()) {
-            return false;
-        }
-        if (!BedrockMinerCompact.canHandleBlock(currentState.getBlock(), state.blockPos)) {
-            return false;
-        }
-        if (!(player.level() instanceof ClientLevel clientLevel)) {
-            return false;
-        }
-        return BedrockMinerCompact.addTask(currentState.getBlock(), state.blockPos, clientLevel);
-    }
-
 
     private static HashSet<Block> getDefaultBlockBlacklistServer() {
         // Default block blacklist (applied on remote servers, separate from the user blacklist)
@@ -166,7 +139,7 @@ public class BreakBlockGuide extends Guide {
         set.add(Blocks.BUBBLE_COLUMN);
         set.add(Blocks.LAVA);
         set.add(Blocks.WATER);
-        set.add(Blocks.WATER_CAULDRON);
+        set.add(Blocks.BEDROCK);
         return set;
     }
 }
