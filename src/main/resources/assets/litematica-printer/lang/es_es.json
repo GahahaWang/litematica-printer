@@ -8,9 +8,11 @@
     "litematica-printer.config.generic.comment.printingMode": "Autoimprimir / imprimir seleccion cargada.\nTenga en cuenta que algunos servidores y anticheats  no permiten la impresión.",
     "litematica-printer.config.generic.comment.printingRange": "Rango de ubicación del bloque de impresión\nSe recomiendan valores más bajos para los servidores.",
     "litematica-printer.config.generic.comment.replaceFluidSourceBlocks": "Si los bloquea deberian printearse en el agua deben ser reemplazados o no por la impresora.",
+    "litematica-printer.config.generic.comment.clearFluid": "Si se deben limpiar las fuentes de agua/lava cuando el objetivo del esquema es fluido.\nRequiere \"Romper bloques\" para retirar automaticamente el bloque de relleno tras colocarlo.",
     "litematica-printer.config.generic.comment.stripLogs": "Si la impresora debe o no utilizar registros normales si las versiones\nEliminadas no están disponibles y luego eliminarlas con un hacha.",
     "litematica-printer.config.generic.comment.breakBlocks": "Si la impresora debe romper automáticamente bloques que necesitan ser removidos.\nLa impresora seleccionará la mejor herramienta de tu barra de acceso rápido para romper bloques eficientemente.",
     "litematica-printer.config.generic.comment.breakerOption": "Define cuándo el Breaker rompe bloques.",
+    "litematica-printer.config.generic.comment.breakPreference": "Prefer Fortune or Silk Touch when selecting a breaker tool. Default ignores enchantments.",
     "litematica-printer.config.generic.comment.breakBedrock": "Habilita la rotura de bedrock usando mecánicas de pistones.\nRequiere: Pistón, Antorcha de Redstone y opcionalmente Bloque de Slime.\nEsta función usa mecánicas del juego para romper bloques normalmente indestructibles.",
     "litematica-printer.config.generic.comment.breakBedrockUseSlime": "Usar bloques de slime como soporte al romper bedrock si están disponibles en la barra rápida.\nProporciona más opciones de colocación para la configuración de antorcha y pistón.",
     "litematica-printer.config.generic.comment.breakerUseBedrockMiner": "Habilita la integración de BedrockMiner cuando el mod está instalado.",
@@ -30,6 +32,7 @@
     "litematica-printer.config.generic.name.stripLogs": "Registros de corteza",
     "litematica-printer.config.generic.name.breakBlocks": "Romper bloques",
     "litematica-printer.config.generic.name.breakerOption": "Modo Breaker",
+    "litematica-printer.config.generic.name.breakPreference": "Breaker Preference",
     "litematica-printer.config.generic.name.breakBedrock": "Romper bedrock",
     "litematica-printer.config.generic.name.breakBedrockUseSlime": "Bedrock - Usar slime",
     "litematica-printer.config.generic.name.breakerUseBedrockMiner": "Usar BedrockMiner",
@@ -49,6 +52,7 @@
     "litematica-printer.config.generic.prettyName.stripLogs": "Registro de corteza",
     "litematica-printer.config.generic.prettyName.breakBlocks": "Romper bloques",
     "litematica-printer.config.generic.prettyName.breakerOption": "Modo Breaker",
+    "litematica-printer.config.generic.prettyName.breakPreference": "Breaker Preference",
     "litematica-printer.config.generic.prettyName.breakBedrock": "Romper bedrock",
     "litematica-printer.config.generic.prettyName.breakBedrockUseSlime": "Bedrock - Usar slime",
     "litematica-printer.config.generic.prettyName.breakerUseBedrockMiner": "Usar BedrockMiner",
@@ -64,5 +68,8 @@
     "litematica-printer.config.hotkeys.prettyName.togglePrintingMode": "Cambiar modo de impresión",
 
     "litematica-printer.config.generic.option.breakerOption.hold": "Impresión activada + mantener",
-    "litematica-printer.config.generic.option.breakerOption.auto": "Seguir modo de impresión"
+    "litematica-printer.config.generic.option.breakerOption.auto": "Seguir modo de impresión",
+    "litematica-printer.config.generic.option.breakPreference.default": "Default (Ignore Enchantments)",
+    "litematica-printer.config.generic.option.breakPreference.fortune": "Prefer Fortune",
+    "litematica-printer.config.generic.option.breakPreference.silkTouch": "Prefer Silk Touch"
 }

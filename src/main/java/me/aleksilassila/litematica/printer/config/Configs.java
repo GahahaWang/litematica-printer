@@ -5,10 +5,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 import fi.dy.masa.malilib.config.IConfigBase;
-import fi.dy.masa.malilib.config.options.ConfigBoolean;
-import fi.dy.masa.malilib.config.options.ConfigDouble;
-import fi.dy.masa.malilib.config.options.ConfigInteger;
-import fi.dy.masa.malilib.config.options.ConfigOptionList;
+import fi.dy.masa.malilib.config.options.*;
 import me.aleksilassila.litematica.printer.PrinterReference;
 
 public class Configs {
@@ -20,10 +17,13 @@ public class Configs {
     public static final ConfigBoolean PRINT_MODE = new ConfigBoolean("printingMode", false).apply(GENERIC_KEY);
     public static final ConfigBoolean PRINT_DEBUG = new ConfigBoolean("printingDebug", false).apply(GENERIC_KEY);
     public static final ConfigBoolean REPLACE_FLUIDS_SOURCE_BLOCKS = new ConfigBoolean("replaceFluidSourceBlocks", true).apply(GENERIC_KEY);
+    public static final ConfigBoolean CLEAR_FLUID = new ConfigBoolean("clearFluid", false).apply(GENERIC_KEY);
+    public static final ConfigStringList BLOCKS_CLEAR_FLUID = new ConfigStringList("blocksClearFluid", ImmutableList.of("minecraft:cobblestone")).apply(GENERIC_KEY);
     public static final ConfigBoolean STRIP_LOGS = new ConfigBoolean("stripLogs", true).apply(GENERIC_KEY);
     public static final ConfigBoolean INTERACT_BLOCKS = new ConfigBoolean("interactBlocks", true).apply(GENERIC_KEY);
     public static final ConfigBoolean BREAK_BLOCKS = new ConfigBoolean("breakBlocks", true).apply(GENERIC_KEY);
     public static final ConfigOptionList BREAKER_OPTION = new ConfigOptionList("breakerOption", BreakerOption.HOLD).apply(GENERIC_KEY);
+    public static final ConfigOptionList BREAK_PREFERENCE = new ConfigOptionList("breakPreference", BreakPreference.DEFAULT).apply(GENERIC_KEY);
     public static final ConfigBoolean BREAKER_USE_BEDROCK_MINER = new ConfigBoolean("breakerUseBedrockMiner", false).apply(GENERIC_KEY);
     public static final ConfigBoolean PRINT_IN_AIR = new ConfigBoolean("printInAir", false).apply(GENERIC_KEY);
     public static final ConfigBoolean FALLING_BLOCK_PRINT_IN_AIR = new ConfigBoolean("fallingBlockPrintInAir", false).apply(GENERIC_KEY);
@@ -43,10 +43,13 @@ public class Configs {
         list.add(PRINTING_INTERVAL);
         list.add(PRINTING_RANGE);
         list.add(REPLACE_FLUIDS_SOURCE_BLOCKS);
+        list.add(CLEAR_FLUID);
+        list.add(BLOCKS_CLEAR_FLUID);
         list.add(STRIP_LOGS);
         list.add(INTERACT_BLOCKS);
         list.add(BREAK_BLOCKS);
         list.add(BREAKER_OPTION);
+        list.add(BREAK_PREFERENCE);
         list.add(BREAKER_USE_BEDROCK_MINER);
         list.add(PRINT_IN_AIR);
         list.add(FALLING_BLOCK_PRINT_IN_AIR);

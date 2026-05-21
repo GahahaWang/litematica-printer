@@ -8,9 +8,11 @@
     "litematica-printer.config.generic.comment.printingMode": "Auto-Bauen: geladene Auswahl automatisch platzieren.\nManche Server/Anti-Cheat verbieten das.",
     "litematica-printer.config.generic.comment.printingRange": "Reichweite, in der Blöcke platziert werden.\nFür Server kleinere Werte nutzen.",
     "litematica-printer.config.generic.comment.replaceFluidSourceBlocks": "Sollen Wasser- oder Lavaquellen ersetzt werden?",
+    "litematica-printer.config.generic.comment.clearFluid": "Ob Wasser-/Lavaquellen gelöscht werden sollen, wenn das Ziel der Vorlage eine Flüssigkeit ist.\nErfordert Blöcke abbauen, damit der Füllblock nach dem Platzieren automatisch entfernt wird.",
     "litematica-printer.config.generic.comment.stripLogs": "Wenn keine entrindeten Stämme da sind, normale setzen und mit der Axt entrinden.",
     "litematica-printer.config.generic.comment.breakBlocks": "Blöcke automatisch abbauen, die entfernt werden müssen.\nDer Drucker wählt automatisch das beste Werkzeug aus der Hotbar zum effizienten Abbau.",
     "litematica-printer.config.generic.comment.breakerOption": "Legt fest, wann der Breaker Blöcke abbaut.",
+    "litematica-printer.config.generic.comment.breakPreference": "Prefer Fortune or Silk Touch when selecting a breaker tool. Default ignores enchantments.",
     "litematica-printer.config.generic.comment.breakBedrock": "Bedrock-Abbau mit Kolben-Mechanik aktivieren.\nBenötigt: Kolben, Redstone-Fackel und optional Schleimblock.\nDiese Funktion nutzt Spielmechaniken zum Abbau normalerweise unzerstörbarer Blöcke.",
     "litematica-printer.config.generic.comment.breakBedrockUseSlime": "Schleimblöcke als Stütze beim Bedrock-Abbau verwenden, falls in der Hotbar verfügbar.\nBietet mehr Platzierungsmöglichkeiten für Fackel und Kolben.",
     "litematica-printer.config.generic.comment.breakerUseBedrockMiner": "BedrockMiner-Integration aktivieren, wenn das Mod installiert ist.",
@@ -30,6 +32,7 @@
     "litematica-printer.config.generic.name.stripLogs": "Stämme entrinden",
     "litematica-printer.config.generic.name.breakBlocks": "Blöcke abbauen",
     "litematica-printer.config.generic.name.breakerOption": "Breaker-Modus",
+    "litematica-printer.config.generic.name.breakPreference": "Breaker Preference",
     "litematica-printer.config.generic.name.breakBedrock": "Bedrock abbauen",
     "litematica-printer.config.generic.name.breakBedrockUseSlime": "Bedrock - Schleimblock verwenden",
     "litematica-printer.config.generic.name.breakerUseBedrockMiner": "BedrockMiner verwenden",
@@ -49,6 +52,7 @@
     "litematica-printer.config.generic.prettyName.stripLogs": "Stämme entrinden",
     "litematica-printer.config.generic.prettyName.breakBlocks": "Blöcke abbauen",
     "litematica-printer.config.generic.prettyName.breakerOption": "Breaker-Modus",
+    "litematica-printer.config.generic.prettyName.breakPreference": "Breaker Preference",
     "litematica-printer.config.generic.prettyName.breakBedrock": "Bedrock abbauen",
     "litematica-printer.config.generic.prettyName.breakBedrockUseSlime": "Bedrock - Schleimblock",
     "litematica-printer.config.generic.prettyName.breakerUseBedrockMiner": "BedrockMiner verwenden",
@@ -64,5 +68,8 @@
     "litematica-printer.config.hotkeys.prettyName.togglePrintingMode": "Druckmodus umschalten",
 
     "litematica-printer.config.generic.option.breakerOption.hold": "Drucken an + Taste halten",
-    "litematica-printer.config.generic.option.breakerOption.auto": "Folgt dem Druckmodus"
+    "litematica-printer.config.generic.option.breakerOption.auto": "Folgt dem Druckmodus",
+    "litematica-printer.config.generic.option.breakPreference.default": "Default (Ignore Enchantments)",
+    "litematica-printer.config.generic.option.breakPreference.fortune": "Prefer Fortune",
+    "litematica-printer.config.generic.option.breakPreference.silkTouch": "Prefer Silk Touch"
 }

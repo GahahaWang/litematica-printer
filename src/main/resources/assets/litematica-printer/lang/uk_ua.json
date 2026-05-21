@@ -8,9 +8,11 @@
     "litematica-printer.config.generic.comment.printingMode": "Автоматична збірка/друк завантаженого вибору.\nЗверніть увагу, що деякі сервери та плаґіни для захисту від читів не дозволяють друкувати.",
     "litematica-printer.config.generic.comment.printingRange": "Діапазон місць блоку друку\nДля серверів рекомендовано нижчі значення.",
     "litematica-printer.config.generic.comment.replaceFluidSourceBlocks": "Чи потрібно замінити друком блоки джерела рідини.",
+    "litematica-printer.config.generic.comment.clearFluid": "Чи потрібно очищати джерела води/лави, коли ціль у схемі є рідиною.\nПотрібно ввімкнути \"Руйнування блоків\", щоб після заповнення автоматично прибрати блок.",
     "litematica-printer.config.generic.comment.stripLogs": "Чи повинен друк використовувати звичайні журнали, якщо\nвидалені версії недоступні, а потім знімати їх сокирою.",
     "litematica-printer.config.generic.comment.breakBlocks": "Чи повинен друк автоматично руйнувати блоки, які потрібно видалити.\nДрук вибере найкращий інструмент з інвентаря для ефективного руйнування блоків.",
     "litematica-printer.config.generic.comment.breakerOption": "Визначає, коли Breaker ламає блоки.",
+    "litematica-printer.config.generic.comment.breakPreference": "Prefer Fortune or Silk Touch when selecting a breaker tool. Default ignores enchantments.",
     "litematica-printer.config.generic.comment.breakBedrock": "Увімкнути руйнування корінної породи за допомогою механіки поршнів.\nПотрібно: Поршень, Червонокаменевий факел та опціонально Слизовий блок.\nЦя функція використовує ігрові механіки для руйнування звичайно незнищуваних блоків.",
     "litematica-printer.config.generic.comment.breakBedrockUseSlime": "Використовувати слизові блоки як підтримку при руйнуванні корінної породи, якщо вони доступні в інвентарі.\nНадає більше варіантів розміщення для факела та поршня.",
     "litematica-printer.config.generic.comment.breakerUseBedrockMiner": "Увімкнути інтеграцію BedrockMiner, якщо мод встановлено.",
@@ -27,6 +29,7 @@
     "litematica-printer.config.generic.name.stripLogs": "stripLogs",
     "litematica-printer.config.generic.name.breakBlocks": "breakBlocks",
     "litematica-printer.config.generic.name.breakerOption": "breakerOption",
+    "litematica-printer.config.generic.name.breakPreference": "breakPreference",
     "litematica-printer.config.generic.name.breakBedrock": "breakBedrock",
     "litematica-printer.config.generic.name.breakBedrockUseSlime": "breakBedrockUseSlime",
     "litematica-printer.config.generic.name.breakerUseBedrockMiner": "breakerUseBedrockMiner",
@@ -46,6 +49,7 @@
     "litematica-printer.config.generic.prettyName.stripLogs": "Обтесані колоди",
     "litematica-printer.config.generic.prettyName.breakBlocks": "Руйнування блоків",
     "litematica-printer.config.generic.prettyName.breakerOption": "Режим Breaker",
+    "litematica-printer.config.generic.prettyName.breakPreference": "Breaker Preference",
     "litematica-printer.config.generic.prettyName.breakBedrock": "Руйнування корінної породи",
     "litematica-printer.config.generic.prettyName.breakBedrockUseSlime": "Корінна порода - Слизовий блок",
     "litematica-printer.config.generic.prettyName.breakerUseBedrockMiner": "Використовувати BedrockMiner",
@@ -64,5 +68,8 @@
     "litematica-printer.config.hotkeys.prettyName.togglePrintingMode": "Перемикач режиму друку",
 
     "litematica-printer.config.generic.option.breakerOption.hold": "Друк увімкнено + утримувати",
-    "litematica-printer.config.generic.option.breakerOption.auto": "Слідувати режиму друку"
+    "litematica-printer.config.generic.option.breakerOption.auto": "Слідувати режиму друку",
+    "litematica-printer.config.generic.option.breakPreference.default": "Default (Ignore Enchantments)",
+    "litematica-printer.config.generic.option.breakPreference.fortune": "Prefer Fortune",
+    "litematica-printer.config.generic.option.breakPreference.silkTouch": "Prefer Silk Touch"
 }

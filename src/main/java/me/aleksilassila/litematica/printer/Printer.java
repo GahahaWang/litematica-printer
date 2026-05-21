@@ -81,15 +81,10 @@ public class Printer {
             SchematicBlockState state = new SchematicBlockState(player.level(), worldSchematic, position);
             BlockState cs = state.currentState;
             BlockState ts = state.targetState;
-            //boolean shouldFillFluid = ClearFluidGuide.shouldProcessPosition(state);
-            //boolean shouldKeepFillBlock = ClearFluidGuide.shouldKeepFillBlock(state);
             if (ts.equals(cs) || cs.is(Blocks.MOVING_PISTON)) {
                 continue;
             }
-            //if(!shouldFillFluid) {
-            //    continue;
-            //}
-            if (!cs.isAir() && !cs.is(ts.getBlock()) && !Configs.BREAK_BLOCKS.getBooleanValue()) {
+            if (!cs.canBeReplaced() && !cs.is(ts.getBlock()) && !Configs.BREAK_BLOCKS.getBooleanValue()) {
                 continue;
             }
 

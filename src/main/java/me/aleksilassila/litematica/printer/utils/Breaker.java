@@ -1,27 +1,37 @@
 package me.aleksilassila.litematica.printer.utils;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Optional;
+
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import fi.dy.masa.malilib.util.EquipmentUtils;
 import me.aleksilassila.litematica.printer.Printer;
+import me.aleksilassila.litematica.printer.config.BreakPreference;
 import me.aleksilassila.litematica.printer.config.BreakerOption;
 import me.aleksilassila.litematica.printer.config.Configs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.FlintAndSteelItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.*;
 
 public class Breaker implements IClientTickHandler {
     private final Minecraft mc;
@@ -131,17 +141,64 @@ public class Breaker implements IClientTickHandler {
         }
 
         Inventory inventory = mc.player.getInventory();
+        BreakPreference preference = (BreakPreference) Configs.BREAK_PREFERENCE.getOptionListValue();
+        boolean preferenceEnabled = preference != BreakPreference.DEFAULT;
+        boolean onlyPreferred = preferenceEnabled && hasPreferredTool(mc, state, preference);
 
         for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
+            ItemStack stack = inventory.getItem(i);
             float speed = getBlockBreakingSpeed(state, mc, i);
+
+            if (onlyPreferred && !matchesPreference(stack, mc, preference)) {
+                continue;
+            }
+
             if ((speed > bestSpeed && speed > 1.0F)
-                    || (speed >= bestSpeed && !inventory.getItem(i).isDamageableItem())) {
+                    || (speed >= bestSpeed && !stack.isDamageableItem())) {
                 bestSlot = i;
                 bestSpeed = speed;
             }
         }
 
         return bestSlot;
+    }
+
+
+    private static boolean hasPreferredTool(Minecraft mc, BlockState state, BreakPreference preference) {
+        if (preference == BreakPreference.DEFAULT || mc.player == null || mc.level == null) {
+            return false;
+        }
+
+        Inventory inventory = mc.player.getInventory();
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
+            if (getBlockBreakingSpeed(state, mc, i) > 1.0F
+                    && matchesPreference(inventory.getItem(i), mc, preference)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean matchesPreference(ItemStack stack, Minecraft mc, BreakPreference preference) {
+        if (preference == BreakPreference.DEFAULT) {
+            return true;
+        }
+        if (stack.isEmpty() || mc.level == null) {
+            return false;
+        }
+
+        return switch (preference) {
+            case FORTUNE -> getEnchantmentLevel(mc, stack, Enchantments.FORTUNE) > 0;
+            case SILK_TOUCH -> getEnchantmentLevel(mc, stack, Enchantments.SILK_TOUCH) > 0;
+            default -> true;
+        };
+    }
+
+    private static int getEnchantmentLevel(Minecraft mc, ItemStack stack, ResourceKey<Enchantment> enchantmentKey) {
+        Optional<Holder.Reference<Enchantment>> optional = mc.level.registryAccess().get(enchantmentKey);
+        return optional.map(enchantmentReference -> EnchantmentHelper.getItemEnchantmentLevel(enchantmentReference, stack))
+                .orElse(0);
     }
 
     public static float getBlockBreakingSpeed(BlockState block, Minecraft mc, int slotId) {

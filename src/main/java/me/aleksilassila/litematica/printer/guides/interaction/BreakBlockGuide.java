@@ -9,6 +9,7 @@ import me.aleksilassila.litematica.printer.actions.BreakBlockAction;
 import me.aleksilassila.litematica.printer.config.BreakerOption;
 import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.guides.Guide;
+import me.aleksilassila.litematica.printer.guides.placement.ClearFluidGuide;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -51,9 +52,9 @@ public class BreakBlockGuide extends Guide {
             return false;
         }
 
-        //if (ClearFluidGuide.shouldKeepFillBlock(state)) {
-        //    return false;
-        //}
+        if (Configs.CLEAR_FLUID.getBooleanValue() && targetState.canBeReplaced() && ClearFluidGuide.wouldReformSource(state)) {
+            return false;
+        }
 
         if (statesEqual(targetState, currentState)) {
             return false;
