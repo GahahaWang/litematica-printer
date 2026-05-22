@@ -8,6 +8,7 @@ import me.aleksilassila.litematica.printer.Printer;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.UpdateChecker;
 import me.aleksilassila.litematica.printer.implementation.LocalPlayerRotationWrapper;
+import me.aleksilassila.litematica.printer.utils.BedrockMinerCompact;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -63,6 +64,7 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
         if (LitematicaMixinMod.printer == null || LitematicaMixinMod.printer.player != clientPlayer) {
             Printer.printDebug("Initializing printer, player: {}, client: {}", clientPlayer, minecraft);
             LitematicaMixinMod.printer = new Printer(minecraft, clientPlayer);
+            BedrockMinerCompact.task = null;
         }
 
         // Dirty optimization

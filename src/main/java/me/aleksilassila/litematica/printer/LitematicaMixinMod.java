@@ -17,7 +17,6 @@ public class LitematicaMixinMod implements ModInitializer {
         breaker = new Breaker(Minecraft.getInstance());
         BedrockMinerCompact.init();
         TickHandler.getInstance().registerClientTickHandler(breaker);
-        TickHandler.getInstance().registerClientTickHandler(new BedrockMinerCompact());
 
         KeyCallbacks.init(Minecraft.getInstance());
         Printer.logger.info("{} initialized.", PrinterReference.MOD_STRING);

@@ -32,14 +32,10 @@ public class BedrockMinerGuide extends BreakBlockGuide {
         if (IGNORE_EXISTING_BLOCKS.getBooleanValue() && getIgnoreBlockRegistry().hasBlock(state.currentState.getBlock())) {
             return false;
         }
-        if (!player.gameMode().isSurvival()) {
-            return false;
-        }
 
         return  Configs.BREAKER_USE_BEDROCK_MINER.getBooleanValue() &&
                 BedrockMinerCompact.isBedrockMinerAvailable() &&
                 BedrockMinerCompact.isWorking() &&
-                BedrockMinerCompact.canHandleBlock(currentState.getBlock(), state.blockPos) &&
                 player.level() instanceof ClientLevel clientLevel &&
                 BedrockMinerCompact.isGoodNewTask(clientLevel, currentState.getBlock(), state.blockPos);
     }
@@ -47,7 +43,6 @@ public class BedrockMinerGuide extends BreakBlockGuide {
     @Override
     public @NonNull List<Action> execute(LocalPlayer player) {
         BedrockMinerCompact.addTask(currentState.getBlock(), state.blockPos, (ClientLevel)player.level());
-        Printer.printDebug("Delegate To BedrockMiner");
         return List.of();
     }
 
