@@ -1,6 +1,7 @@
 package me.aleksilassila.litematica.printer.implementation.mixin.bedrockminer;
 
 import com.github.bunnyi116.bedrockminer.task.Task;
+import com.github.bunnyi116.bedrockminer.task.TaskPlan;
 import com.github.bunnyi116.bedrockminer.task.TaskState;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -12,7 +13,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Pseudo
 @Mixin(targets = "com.github.bunnyi116.bedrockminer.task.Task", remap = false)
-public interface ITaskMixin {
+public interface ITask {
+
     @Invoker("<init>")
     static Task litematica_printer$newTask(ClientLevel world, Block block, BlockPos pos) {
         throw new AssertionError();
@@ -30,4 +32,6 @@ public interface ITaskMixin {
     @Accessor("block")
     Block litematica_printer$getBlock();
 
+    @Accessor("planItem")
+    TaskPlan litematica_printer$getPlanItem();
 }

@@ -61,10 +61,6 @@ public class Printer {
             printDebug("Breaker is currently breaking a block, skipping other operations");
             return false;
         }
-        if (BedrockMinerCompact.isBreakingBlock()) {
-            printDebug("Bedrock Miner is currently breaking a block, skipping other operations");
-            return false;
-        }
 
         Abilities abilities = player.getAbilities();
         if (!abilities.mayBuild) {
@@ -76,6 +72,9 @@ public class Printer {
         findBlock:
         for (BlockPos position : positions) {
             if (positionCache.isPositionCached(position)) {
+                continue;
+            }
+            if (BedrockMinerCompact.isBedrockMinerReservedPosFromPlan(position)) {
                 continue;
             }
             SchematicBlockState state = new SchematicBlockState(player.level(), worldSchematic, position);

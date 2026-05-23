@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Pseudo
 @Mixin(targets = "com.github.bunnyi116.bedrockminer.config.Config", remap = false)
-public interface IConfigMixin {
+public interface IConfig {
 
     @Invoker("getInstance")
     static Config litematica_printer$getInstance() {
@@ -25,4 +25,7 @@ public interface IConfigMixin {
 
     @Invoker("isFloorsBlacklist")
     boolean litematica_printer$isFloorsBlacklist(BlockPos pos);
+
+    @Accessor("limitMax")
+    int litematica_printer$getLimitMax();
 }

@@ -6,10 +6,11 @@
   "client": [
     "MixinClientPlayerEntity",
     "MultiPlayerGameModeMixin",
-    "bedrockminer.IConfigMixin",
-    "bedrockminer.ITaskMixin",
-    "bedrockminer.ITaskManagerMixin",
-    "bedrockminer.TaskManagerMixin"
+    "bedrockminer.IConfig",
+    "bedrockminer.ITask",
+    "bedrockminer.ITaskManager",
+    "bedrockminer.TaskManagerMixin",
+    "bedrockminer.ItaskPlan"
   ],
   "injectors": {
     "defaultRequire": 1

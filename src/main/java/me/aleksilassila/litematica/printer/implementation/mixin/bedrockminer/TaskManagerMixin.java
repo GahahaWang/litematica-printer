@@ -12,6 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class TaskManagerMixin {
     @Inject(method = "setRunning(Z)V", at = @At("TAIL"))
     public void setRunning(boolean running, CallbackInfo ci) {
-        BedrockMinerCompact.task = null;
+        BedrockMinerCompact.tasks.clear();
     }
 }
