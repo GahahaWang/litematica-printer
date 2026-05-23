@@ -64,7 +64,7 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
         if (LitematicaMixinMod.printer == null || LitematicaMixinMod.printer.player != clientPlayer) {
             Printer.printDebug("Initializing printer, player: {}, client: {}", clientPlayer, minecraft);
             LitematicaMixinMod.printer = new Printer(minecraft, clientPlayer);
-            BedrockMinerCompact.task = null;
+            BedrockMinerCompact.tasks.clear();
         }
 
         // Dirty optimization

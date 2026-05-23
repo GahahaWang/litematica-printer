@@ -11,12 +11,15 @@ import net.minecraft.client.Minecraft;
 public class LitematicaMixinMod implements ModInitializer {
     public static Printer printer;
     public static Breaker breaker;
+    public static BedrockMinerCompact bedrockMinerCompact;
 
     @Override
     public void onInitialize() {
         breaker = new Breaker(Minecraft.getInstance());
+        bedrockMinerCompact = new BedrockMinerCompact();
         BedrockMinerCompact.init();
         TickHandler.getInstance().registerClientTickHandler(breaker);
+        TickHandler.getInstance().registerClientTickHandler(bedrockMinerCompact);
 
         KeyCallbacks.init(Minecraft.getInstance());
         Printer.logger.info("{} initialized.", PrinterReference.MOD_STRING);
