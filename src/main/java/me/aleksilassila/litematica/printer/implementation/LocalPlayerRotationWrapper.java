@@ -19,8 +19,9 @@ public class LocalPlayerRotationWrapper extends LocalPlayer {
     }
 
     private LocalPlayerRotationWrapper() {
-        super(Minecraft.getInstance(), (ClientLevel) Minecraft.getInstance().player.level(), Minecraft.getInstance().player.connection,
-                Minecraft.getInstance().player.getStats(), Minecraft.getInstance().player.getRecipeBook(), Input.EMPTY, false);
+        Minecraft mc = Minecraft.getInstance();
+        super(mc, (ClientLevel) mc.player.level(), mc.player.connection,
+                mc.player.getStats(), mc.player.getRecipeBook(), Input.EMPTY, false, mc.player.chatAbilities());
     }
 
     public LocalPlayerRotationWrapper rot(float yaw, float pitch) {

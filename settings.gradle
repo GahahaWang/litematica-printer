@@ -8,6 +8,3 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-//if (file('../hasteless-bedrock-breaker').exists()) {
-//    includeBuild('../hasteless-bedrock-breaker')
-//}

@@ -22,7 +22,7 @@ import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -550,7 +550,7 @@ public class Breaker implements IClientTickHandler {
                         lastCount = isCreative(player) ? 65536 : getInventory(player).getItem(slot).getCount();
                         Printer.printDebug("Slot at " + slot + "(" + String.valueOf(getInventory(player).getItem(slot).getItem()) + ") is swapped with " + selectedSlot + "(" + String.valueOf(getInventory(player).getNonEquipmentItems().get(selectedSlot)) + ")");
                         usedSlots.put(selectedSlot, stack.getItem());
-                        client.gameMode.handleInventoryMouseClick(player.inventoryMenu.containerId, slot, selectedSlot, ClickType.SWAP, player);
+                        client.gameMode.handleContainerInput(player.inventoryMenu.containerId, slot, selectedSlot, ContainerInput.SWAP, player);
                         getInventory(player).setSelectedSlot(selectedSlot);
                         trackedSelectedSlot = selectedSlot;
                     }
