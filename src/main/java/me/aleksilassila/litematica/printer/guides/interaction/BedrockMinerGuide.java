@@ -1,6 +1,5 @@
 package me.aleksilassila.litematica.printer.guides.interaction;
 
-import me.aleksilassila.litematica.printer.Printer;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.actions.Action;
 import me.aleksilassila.litematica.printer.config.Configs;
@@ -39,8 +38,8 @@ public class BedrockMinerGuide extends BreakBlockGuide {
                 BedrockMinerCompact.isExecutionEnvironmentValid() &&
                 BedrockMinerCompact.canAcceptBedrockMinerTask();
         if (!bl) return false;
-        this.task = BedrockMinerCompact.isGoodNewTask((ClientLevel)player.level(), currentState.getBlock(), state.blockPos);
-        return this.task != null;
+        this.task = BedrockMinerCompact.isValidNewTask((ClientLevel)player.level(), currentState.getBlock(), state.blockPos);
+        return this.task != null && !BedrockMinerCompact.willTaskEffectOthersTask(this.task);
     }
 
     @Override

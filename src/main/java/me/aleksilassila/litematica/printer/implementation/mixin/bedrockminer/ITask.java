@@ -34,4 +34,8 @@ public interface ITask {
 
     @Accessor("planItem")
     TaskPlan litematica_printer$getPlanItem();
+
+    @Invoker("isComplete")
+    boolean litematica_printer$isComplete();
+
 }

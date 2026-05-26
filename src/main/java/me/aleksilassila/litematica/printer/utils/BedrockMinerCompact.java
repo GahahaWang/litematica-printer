@@ -15,6 +15,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
@@ -99,7 +100,7 @@ public final class BedrockMinerCompact implements IClientTickHandler {
         }
     }
 
-    public static ITask isGoodNewTask(ClientLevel world, Block block, BlockPos pos) {
+    public static ITask isValidNewTask(ClientLevel world, Block block, BlockPos pos) {
         if (!bedrockMinerAvailable) {
             return null;
         }
@@ -176,19 +177,6 @@ public final class BedrockMinerCompact implements IClientTickHandler {
         return manhattan == 0 || manhattan == 1;
     }
 
-    public static boolean isBedrockMinerReservedPos(BlockPos blockPos) {
-        for (ITask task : tasks) {
-            BlockPos taskPos = task.litematica_printer$getPos();
-            boolean x = Math.abs(taskPos.getX() - blockPos.getX()) <= 2;
-            boolean y = Math.abs(taskPos.getY() - blockPos.getY()) <= 2;
-            boolean z = Math.abs(taskPos.getZ() - blockPos.getZ()) <= 2;
-            if (x|y|z) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static boolean isBedrockMinerReservedPosFromPlan(BlockPos blockPos) {
         for (ITask task : tasks) {
             ItaskPlan planItem = (ItaskPlan)task.litematica_printer$getPlanItem();
@@ -218,6 +206,80 @@ public final class BedrockMinerCompact implements IClientTickHandler {
         return false;
     }
 
+    public static boolean willTaskEffectOthersTask(ITask task) {
+        ItaskPlan planItem = (ItaskPlan) task.litematica_printer$getPlanItem();
+        if (planItem == null) {
+            return false;
+        }
+        for (ITask task2 : tasks) {
+            ItaskPlan planItem2 = (ItaskPlan) task2.litematica_printer$getPlanItem();
+            if (planItem2 == null) {
+                continue;
+            }
+            if (doesPlanImpact(planItem, planItem2) || doesPlanImpact(planItem2, planItem)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean doesPlanImpact(ItaskPlan source, ItaskPlan target) {
+        var sourcePiston = source.litematica_printer$getPiston();
+        var sourceTorch = source.litematica_printer$getRedstoneTorch();
+        var sourceSlime = source.litematica_printer$getSlimeBlock();
+
+        BlockPos sourcePistonPos = sourcePiston.pos;
+        BlockPos sourcePistonHeadPos = sourcePistonPos.relative(sourcePiston.facing);
+        BlockPos sourcePistonPushPos = sourcePistonHeadPos.relative(sourcePiston.facing);
+        BlockPos sourceTorchPos = sourceTorch.pos;
+        BlockPos sourceTorchBasePos = sourceTorchPos.relative(sourceTorch.facing.getOpposite());
+        BlockPos sourceSlimePos = sourceSlime.pos;
+
+        var targetPiston = target.litematica_printer$getPiston();
+        var targetTorch = target.litematica_printer$getRedstoneTorch();
+        var targetSlime = target.litematica_printer$getSlimeBlock();
+
+        BlockPos targetPistonPos = targetPiston.pos;
+        BlockPos targetPistonHeadPos = targetPistonPos.relative(targetPiston.facing);
+        BlockPos targetTorchPos = targetTorch.pos;
+        BlockPos targetTorchBasePos = targetTorchPos.relative(targetTorch.facing.getOpposite());
+        BlockPos targetSlimePos = targetSlime.pos;
+
+        return impactsTargetPos(targetPistonPos, sourcePistonPos, sourcePistonHeadPos, sourcePistonPushPos,
+                sourceTorchPos, sourceTorchBasePos, sourceSlimePos)
+                || impactsTargetPos(targetPistonHeadPos, sourcePistonPos, sourcePistonHeadPos, sourcePistonPushPos,
+                sourceTorchPos, sourceTorchBasePos, sourceSlimePos)
+                || impactsTargetPos(targetTorchPos, sourcePistonPos, sourcePistonHeadPos, sourcePistonPushPos,
+                sourceTorchPos, sourceTorchBasePos, sourceSlimePos)
+                || impactsTargetPos(targetTorchBasePos, sourcePistonPos, sourcePistonHeadPos, sourcePistonPushPos,
+                sourceTorchPos, sourceTorchBasePos, sourceSlimePos)
+                || impactsTargetPos(targetSlimePos, sourcePistonPos, sourcePistonHeadPos, sourcePistonPushPos,
+                sourceTorchPos, sourceTorchBasePos, sourceSlimePos);
+    }
+
+    private static boolean impactsTargetPos(BlockPos targetPos,
+                                            BlockPos sourcePistonPos,
+                                            BlockPos sourcePistonHeadPos,
+                                            BlockPos sourcePistonPushPos,
+                                            BlockPos sourceTorchPos,
+                                            BlockPos sourceTorchBasePos,
+                                            BlockPos sourceSlimePos) {
+        if (targetPos.equals(sourcePistonPos)
+                || targetPos.equals(sourcePistonHeadPos)
+                || targetPos.equals(sourcePistonPushPos)
+                || targetPos.equals(sourceTorchPos)
+                || targetPos.equals(sourceTorchBasePos)
+                || targetPos.equals(sourceSlimePos)) {
+            return true;
+        }
+        for (Direction direction : Direction.values()) {
+            if (targetPos.equals(sourceTorchPos.relative(direction))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static void cleanTasks(Iterator<ITask> tasksIterator) {
         var mc = Minecraft.getInstance();
         Vec3 playerPos = mc.player.position();
@@ -226,7 +288,11 @@ public final class BedrockMinerCompact implements IClientTickHandler {
 
         while (tasksIterator.hasNext()) {
             ITask task = tasksIterator.next();
-            if(isState(task.litematica_printer$getCurrentState(), "COMPLETE")) {
+            if (task == null) {
+                tasksIterator.remove();
+                continue;
+            }
+            if(task.litematica_printer$isComplete()) {
                 tasksIterator.remove();
                 continue;
             }
@@ -235,6 +301,7 @@ public final class BedrockMinerCompact implements IClientTickHandler {
             if (task.litematica_printer$getWorld() == mc.level &&
                     playerPos.distanceToSqr(ownedTasksBlockCenter) > maxReachSquared) {
                 tasksIterator.remove();
+                continue;
             }
             Printer.printDebug("BedrockMinerCompact isBreakingBlock at pos{}", taskPos);
         }
