@@ -6,6 +6,7 @@ import com.github.bunnyi116.bedrockminer.task.TaskState;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -33,7 +34,7 @@ public interface ITask {
     Block litematica_printer$getBlock();
 
     @Accessor("activeScheme")
-    Scheme litematica_printer$getActiveScheme();
+    @Nullable Scheme litematica_printer$getActiveScheme();
 
     @Invoker("isComplete")
     boolean litematica_printer$isComplete();

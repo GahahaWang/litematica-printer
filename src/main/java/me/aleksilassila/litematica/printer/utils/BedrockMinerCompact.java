@@ -178,13 +178,13 @@ public final class BedrockMinerCompact implements IClientTickHandler {
 
     public static boolean isBedrockMinerReservedPosFromPlan(BlockPos blockPos) {
         for (ITask task : tasks) {
-            IScheme planItem = (IScheme)task.litematica_printer$getActiveScheme();
-            if (planItem == null) {
+            IScheme scheme = (IScheme)task.litematica_printer$getActiveScheme();
+            if (scheme == null) {
                 continue;
             }
-            var piston = planItem.litematica_printer$getPiston();
-            var redstoneTorch = planItem.litematica_printer$getRedstoneTorch();
-            var slimeBlock = planItem.litematica_printer$getSlimeBlock();
+            var piston = scheme.litematica_printer$getPiston();
+            var redstoneTorch = scheme.litematica_printer$getRedstoneTorch();
+            var slimeBlock = scheme.litematica_printer$getSlimeBlock();
 
             if (isSameOrAdjacent(blockPos, piston.pos)
                     || isSameOrAdjacent(blockPos, redstoneTorch.pos)
@@ -206,16 +206,16 @@ public final class BedrockMinerCompact implements IClientTickHandler {
     }
 
     public static boolean willTaskEffectOthersTask(ITask task) {
-        IScheme planItem = (IScheme) task.litematica_printer$getActiveScheme();
-        if (planItem == null) {
+        IScheme scheme = (IScheme) task.litematica_printer$getActiveScheme();
+        if (scheme == null) {
             return false;
         }
         for (ITask task2 : tasks) {
-            IScheme planItem2 = (IScheme) task2.litematica_printer$getActiveScheme();
-            if (planItem2 == null) {
+            IScheme scheme2 = (IScheme) task2.litematica_printer$getActiveScheme();
+            if (scheme2 == null) {
                 continue;
             }
-            if (doesPlanImpact(planItem, planItem2) || doesPlanImpact(planItem2, planItem)) {
+            if (doesPlanImpact(scheme, scheme2) || doesPlanImpact(scheme2, scheme)) {
                 return true;
             }
         }
