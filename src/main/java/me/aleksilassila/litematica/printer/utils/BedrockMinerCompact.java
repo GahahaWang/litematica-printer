@@ -10,7 +10,7 @@ import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.implementation.mixin.bedrockminer.IConfig;
 import me.aleksilassila.litematica.printer.implementation.mixin.bedrockminer.ITask;
 import me.aleksilassila.litematica.printer.implementation.mixin.bedrockminer.ITaskManager;
-import me.aleksilassila.litematica.printer.implementation.mixin.bedrockminer.ItaskPlan;
+import me.aleksilassila.litematica.printer.implementation.mixin.bedrockminer.IScheme;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -178,7 +178,7 @@ public final class BedrockMinerCompact implements IClientTickHandler {
 
     public static boolean isBedrockMinerReservedPosFromPlan(BlockPos blockPos) {
         for (ITask task : tasks) {
-            ItaskPlan planItem = (ItaskPlan)task.litematica_printer$getPlanItem();
+            IScheme planItem = (IScheme)task.litematica_printer$getActiveScheme();
             if (planItem == null) {
                 continue;
             }
@@ -206,12 +206,12 @@ public final class BedrockMinerCompact implements IClientTickHandler {
     }
 
     public static boolean willTaskEffectOthersTask(ITask task) {
-        ItaskPlan planItem = (ItaskPlan) task.litematica_printer$getPlanItem();
+        IScheme planItem = (IScheme) task.litematica_printer$getActiveScheme();
         if (planItem == null) {
             return false;
         }
         for (ITask task2 : tasks) {
-            ItaskPlan planItem2 = (ItaskPlan) task2.litematica_printer$getPlanItem();
+            IScheme planItem2 = (IScheme) task2.litematica_printer$getActiveScheme();
             if (planItem2 == null) {
                 continue;
             }
@@ -222,7 +222,7 @@ public final class BedrockMinerCompact implements IClientTickHandler {
         return false;
     }
 
-    private static boolean doesPlanImpact(ItaskPlan source, ItaskPlan target) {
+    private static boolean doesPlanImpact(IScheme source, IScheme target) {
         var sourcePiston = source.litematica_printer$getPiston();
         var sourceTorch = source.litematica_printer$getRedstoneTorch();
         var sourceSlime = source.litematica_printer$getSlimeBlock();
@@ -325,15 +325,16 @@ public final class BedrockMinerCompact implements IClientTickHandler {
                     Direction.UP       // with ABORT_DESTROY_BLOCK, this value is unused
             );
             mc.getConnection().send(packetTarget);
+            if (task.litematica_printer$getActiveScheme() == null) continue;
             ServerboundPlayerActionPacket packetPiston = new ServerboundPlayerActionPacket(
                     ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,
-                    task.litematica_printer$getPlanItem().piston.pos,
+                    task.litematica_printer$getActiveScheme().piston.pos,
                     Direction.UP       // with ABORT_DESTROY_BLOCK, this value is unused
             );
             mc.getConnection().send(packetPiston);
             ServerboundPlayerActionPacket packetPistonHead = new ServerboundPlayerActionPacket(
                     ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,
-                    task.litematica_printer$getPlanItem().piston.pos.relative(task.litematica_printer$getPlanItem().piston.facing),
+                    task.litematica_printer$getActiveScheme().piston.pos.relative(task.litematica_printer$getActiveScheme().piston.facing),
                     Direction.UP       // with ABORT_DESTROY_BLOCK, this value is unused
             );
             mc.getConnection().send(packetPistonHead);

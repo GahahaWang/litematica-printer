@@ -10,7 +10,7 @@
     "bedrockminer.ITask",
     "bedrockminer.ITaskManager",
     "bedrockminer.TaskManagerMixin",
-    "bedrockminer.ItaskPlan"
+    "bedrockminer.IScheme"
   ],
   "injectors": {
     "defaultRequire": 1
