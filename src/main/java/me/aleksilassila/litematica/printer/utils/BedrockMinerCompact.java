@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
@@ -24,7 +25,8 @@ public final class BedrockMinerCompact implements IClientTickHandler {
     private static final String BEDROCK_MINER_MOD_ID = "bedrockminer";
     private static boolean initialized = false;
     private static boolean bedrockMinerAvailable = false;
-    public static ObjectOpenHashSet<ITask> tasks = new ObjectOpenHashSet<>(100);
+    public static final ObjectOpenHashSet<ITask> tasks = new ObjectOpenHashSet<>(100);
+    public static final ObjectOpenHashSet<ITask> ANTI_GHOST_BLOCK = new ObjectOpenHashSet<>(100);
 
     public static void init() {
         if (initialized) {
@@ -150,9 +152,6 @@ public final class BedrockMinerCompact implements IClientTickHandler {
             }
             IConfig config = (IConfig) IConfig.litematica_printer$getInstance();
             List<ITask> activeTasks = getTaskManager().litematica_printer$getActiveBlockTasks();
-            Printer.printDebug("limitmax {}",config.litematica_printer$getLimitMax());
-            Printer.printDebug("tasks size {}",tasks.size());
-            Printer.printDebug("activeTasks size {}",activeTasks.size());
             return tasks.size() < config.litematica_printer$getLimitMax() &&
                     activeTasks.size() < config.litematica_printer$getLimitMax();
         } catch (Throwable e) {
@@ -230,10 +229,7 @@ public final class BedrockMinerCompact implements IClientTickHandler {
 
         BlockPos sourcePistonPos = sourcePiston.pos;
         BlockPos sourcePistonHeadPos = sourcePistonPos.relative(sourcePiston.facing);
-        BlockPos sourcePistonPushPos = sourcePistonHeadPos.relative(sourcePiston.facing);
         BlockPos sourceTorchPos = sourceTorch.pos;
-        BlockPos sourceTorchBasePos = sourceTorchPos.relative(sourceTorch.facing.getOpposite());
-        BlockPos sourceSlimePos = sourceSlime.pos;
 
         var targetPiston = target.litematica_printer$getPiston();
         var targetTorch = target.litematica_printer$getRedstoneTorch();
@@ -245,38 +241,31 @@ public final class BedrockMinerCompact implements IClientTickHandler {
         BlockPos targetTorchBasePos = targetTorchPos.relative(targetTorch.facing.getOpposite());
         BlockPos targetSlimePos = targetSlime.pos;
 
-        return impactsTargetPos(targetPistonPos, sourcePistonPos, sourcePistonHeadPos, sourcePistonPushPos,
-                sourceTorchPos, sourceTorchBasePos, sourceSlimePos)
-                || impactsTargetPos(targetPistonHeadPos, sourcePistonPos, sourcePistonHeadPos, sourcePistonPushPos,
-                sourceTorchPos, sourceTorchBasePos, sourceSlimePos)
-                || impactsTargetPos(targetTorchPos, sourcePistonPos, sourcePistonHeadPos, sourcePistonPushPos,
-                sourceTorchPos, sourceTorchBasePos, sourceSlimePos)
-                || impactsTargetPos(targetTorchBasePos, sourcePistonPos, sourcePistonHeadPos, sourcePistonPushPos,
-                sourceTorchPos, sourceTorchBasePos, sourceSlimePos)
-                || impactsTargetPos(targetSlimePos, sourcePistonPos, sourcePistonHeadPos, sourcePistonPushPos,
-                sourceTorchPos, sourceTorchBasePos, sourceSlimePos);
-    }
+        if (sourceTorchPos.offset(1,0,0) == targetPistonPos||
+                sourceTorchPos.offset(-1,0,0) == targetPistonPos||
+                sourceTorchPos.offset(0,1,0) == targetPistonPos||
+                sourceTorchPos.offset(0,-1,0) == targetPistonPos||
+                sourceTorchPos.offset(0,0,1) == targetPistonPos||
+                sourceTorchPos.offset(0,0,-1) == targetPistonPos||
+                sourceTorchPos.offset(1,-1,0) == targetPistonPos||
+                sourceTorchPos.offset(-1,-1,0) == targetPistonPos||
+                sourceTorchPos.offset(0,-1,1) == targetPistonPos||
+                sourceTorchPos.offset(0,-1,-1) == targetPistonPos||
+                sourceTorchPos.offset(1,1,0) == targetPistonPos||
+                sourceTorchPos.offset(-1,1,0) == targetPistonPos||
+                sourceTorchPos.offset(0,1,1) == targetPistonPos||
+                sourceTorchPos.offset(0,1,-1) == targetPistonPos||
+                sourceTorchPos.offset(0,2,0) == targetPistonPos||
+                sourceTorchPos.offset(0,-2,0) == targetPistonPos
+        ) return true;
 
-    private static boolean impactsTargetPos(BlockPos targetPos,
-                                            BlockPos sourcePistonPos,
-                                            BlockPos sourcePistonHeadPos,
-                                            BlockPos sourcePistonPushPos,
-                                            BlockPos sourceTorchPos,
-                                            BlockPos sourceTorchBasePos,
-                                            BlockPos sourceSlimePos) {
-        if (targetPos.equals(sourcePistonPos)
-                || targetPos.equals(sourcePistonHeadPos)
-                || targetPos.equals(sourcePistonPushPos)
-                || targetPos.equals(sourceTorchPos)
-                || targetPos.equals(sourceTorchBasePos)
-                || targetPos.equals(sourceSlimePos)) {
-            return true;
-        }
-        for (Direction direction : Direction.values()) {
-            if (targetPos.equals(sourceTorchPos.relative(direction))) {
-                return true;
-            }
-        }
+        if (sourcePistonHeadPos == targetPistonPos||
+                sourcePistonHeadPos == targetPistonHeadPos||
+                sourcePistonHeadPos == targetTorchPos||
+                sourcePistonHeadPos == targetTorchBasePos||
+                sourcePistonHeadPos == targetSlimePos
+        ) return true;
+
         return false;
     }
 
@@ -294,6 +283,7 @@ public final class BedrockMinerCompact implements IClientTickHandler {
             }
             if(task.litematica_printer$isComplete()) {
                 tasksIterator.remove();
+                ANTI_GHOST_BLOCK.add(task);
                 continue;
             }
             BlockPos taskPos = task.litematica_printer$getPos();
@@ -303,7 +293,7 @@ public final class BedrockMinerCompact implements IClientTickHandler {
                 tasksIterator.remove();
                 continue;
             }
-            Printer.printDebug("BedrockMinerCompact isBreakingBlock at pos{}", taskPos);
+            //Printer.printDebug("BedrockMinerCompact isBreakingBlock at pos{}", taskPos);
         }
     }
 
@@ -315,7 +305,7 @@ public final class BedrockMinerCompact implements IClientTickHandler {
 
     @Override
     public void onClientTick(Minecraft mc) {
-        if (mc.player == null || mc.level == null) {
+        if (mc.player == null || mc.level == null || mc.gameMode == null || mc.getConnection() == null || !bedrockMinerAvailable) {
             return;
         }
         ITaskManager taskManager = getTaskManager();
@@ -328,5 +318,27 @@ public final class BedrockMinerCompact implements IClientTickHandler {
         cleanTasks(tasksIterator);
         cleanTasks(activeTasksIterator);
         cleanTasks(pendingTasksIterator);
+        for (ITask task: ANTI_GHOST_BLOCK) {
+            ServerboundPlayerActionPacket packetTarget = new ServerboundPlayerActionPacket(
+                    ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,
+                    task.litematica_printer$getPos(),
+                    Direction.UP       // with ABORT_DESTROY_BLOCK, this value is unused
+            );
+            mc.getConnection().send(packetTarget);
+            if (task.litematica_printer$getPlanItem() == null) continue;
+            ServerboundPlayerActionPacket packetPiston = new ServerboundPlayerActionPacket(
+                    ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,
+                    task.litematica_printer$getPlanItem().piston.pos,
+                    Direction.UP       // with ABORT_DESTROY_BLOCK, this value is unused
+            );
+            mc.getConnection().send(packetPiston);
+            ServerboundPlayerActionPacket packetPistonHead = new ServerboundPlayerActionPacket(
+                    ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,
+                    task.litematica_printer$getPlanItem().piston.pos.relative(task.litematica_printer$getPlanItem().piston.facing),
+                    Direction.UP       // with ABORT_DESTROY_BLOCK, this value is unused
+            );
+            mc.getConnection().send(packetPistonHead);
+        }
+        ANTI_GHOST_BLOCK.clear();
     }
 }

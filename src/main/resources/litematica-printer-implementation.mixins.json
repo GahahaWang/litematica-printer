@@ -10,8 +10,7 @@
     "bedrockminer.ITask",
     "bedrockminer.ITaskManager",
     "bedrockminer.TaskManagerMixin",
-    "bedrockminer.ItaskPlan",
-    "bedrockminer.GhostBlockPatch"
+    "bedrockminer.ItaskPlan"
   ],
   "injectors": {
     "defaultRequire": 1

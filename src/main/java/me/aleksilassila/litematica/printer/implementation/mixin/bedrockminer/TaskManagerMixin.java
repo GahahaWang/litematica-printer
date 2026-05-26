@@ -13,5 +13,6 @@ public class TaskManagerMixin {
     @Inject(method = "setRunning(Z)V", at = @At("TAIL"))
     public void setRunning(boolean running, CallbackInfo ci) {
         BedrockMinerCompact.tasks.clear();
+        BedrockMinerCompact.ANTI_GHOST_BLOCK.clear();
     }
 }
