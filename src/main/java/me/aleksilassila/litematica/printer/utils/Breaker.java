@@ -106,8 +106,8 @@ public class Breaker implements IClientTickHandler {
      * broken, or the tick handler otherwise stops breaking it.
      */
     public void cancelBreaking() {
-        this.pos = null;
-        if (this.mc.gameMode != null) {
+        if (this.mc.gameMode != null && pos != null) {
+            this.pos = null;
             this.mc.gameMode.stopDestroyBlock();
         }
     }

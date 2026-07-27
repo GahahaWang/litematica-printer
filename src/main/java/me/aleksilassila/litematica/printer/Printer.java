@@ -175,7 +175,7 @@ public class Printer {
         positions.sort((a, b) -> {
             double aDistance = eyePos.distanceToSqr(a.getX() + 0.5D, a.getY() + 0.5D, a.getZ() + 0.5D);
             double bDistance = eyePos.distanceToSqr(b.getX() + 0.5D, b.getY() + 0.5D, b.getZ() + 0.5D);
-            return farFirst ? Double.compare(bDistance, aDistance) : Double.compare(aDistance, bDistance);
+            return farFirst ? Double.compare(aDistance, bDistance) : Double.compare(bDistance, aDistance);
         });
 
         return positions;
