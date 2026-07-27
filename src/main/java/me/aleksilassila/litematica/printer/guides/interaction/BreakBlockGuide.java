@@ -10,16 +10,18 @@ import me.aleksilassila.litematica.printer.config.BreakerOption;
 import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.guides.Guide;
 import me.aleksilassila.litematica.printer.guides.placement.ClearFluidGuide;
+import me.aleksilassila.litematica.printer.utils.BreakBlockListRegistry;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 
 import static fi.dy.masa.litematica.config.Configs.Visuals.IGNORE_EXISTING_BLOCKS;
@@ -31,7 +33,8 @@ public class BreakBlockGuide extends Guide {
     private static final long IGNORE_BLOCK_REGISTRY_REFRESH_INTERVAL_MS = 1000L;
     private IgnoreBlockRegistry ignoreBlockRegistry = new IgnoreBlockRegistry();
     private long ignoreBlockRegistryLastRefreshMs = System.currentTimeMillis();
-    private static final HashSet<Block> STRICK_IGNORELIST = getDefaultBlockBlacklistServer();
+    private BreakBlockListRegistry breakBlockListRegistry = new BreakBlockListRegistry();
+    private long breakBlockListRegistryLastRefreshMs = System.currentTimeMillis();
 
     public BreakBlockGuide(SchematicBlockState state) {
         super(state);
@@ -46,9 +49,26 @@ public class BreakBlockGuide extends Guide {
         return ignoreBlockRegistry;
     }
 
+    protected BreakBlockListRegistry getBreakBlockListRegistry() {
+        long now = System.currentTimeMillis();
+        if (now - breakBlockListRegistryLastRefreshMs >= IGNORE_BLOCK_REGISTRY_REFRESH_INTERVAL_MS) {
+            breakBlockListRegistry = new BreakBlockListRegistry();
+            breakBlockListRegistryLastRefreshMs = now;
+        }
+        return breakBlockListRegistry;
+    }
+
     @Override
     public boolean canExecute(LocalPlayer player) {
         if (!isBreakerAllowed()) {
+            return false;
+        }
+
+        if (!LitematicaMixinMod.printer.actionHandler.isQueueEmpty()) {
+            return false;
+        }
+
+        if (Configs.AVOID_BREAKING_UNDER_PLAYER.getBooleanValue() && state.blockPos.equals(player.blockPosition().below())) {
             return false;
         }
 
@@ -69,11 +89,16 @@ public class BreakBlockGuide extends Guide {
             return false;
         }
 
-        // Skip certain blocks
-        if (STRICK_IGNORELIST.contains(currentState.getBlock())) { return false; }
+        // Skip default-ignored blocks, plus the user's blacklist/whitelist
+        if (!getBreakBlockListRegistry().isBreakable(currentState.getBlock())) { return false; }
 
         // Determine if breaking is needed
-        boolean needsBreaking = !currentState.getBlock().getName().equals(targetState.getBlock().getName());
+        boolean needsBreaking = !currentState.getBlock().equals(targetState.getBlock());
+        // Special case for flower pots - filling an empty pot is a right-click
+        // interaction (FlowerPotFillGuide), not a break+place
+        if (needsBreaking && currentState.is(Blocks.FLOWER_POT) && targetState.getBlock() instanceof FlowerPotBlock) {
+            needsBreaking = false;
+        }
         // Special case for slabs - need to break if the type is wrong
         if (!needsBreaking &&
             currentState.getBlock() instanceof SlabBlock &&
@@ -110,9 +135,11 @@ public class BreakBlockGuide extends Guide {
 
     @Override
     public @Nonnull List<Action> execute(LocalPlayer player) {
-        List<Action> actions = new ArrayList<>();
-        actions.add(new BreakBlockAction(state.blockPos, LitematicaMixinMod.breaker));
-        return actions;
+//        List<Action> actions = new ArrayList<>();
+//        actions.add(new BreakBlockAction(state.blockPos, LitematicaMixinMod.breaker));
+//        return actions;
+        new BreakBlockAction(state.blockPos, LitematicaMixinMod.breaker).send(Minecraft.getInstance(), player);
+        return Collections.emptyList();
     }
 
     @Override
@@ -121,26 +148,7 @@ public class BreakBlockGuide extends Guide {
     }
 
     @Override
-    public boolean skipOtherGuides() {
-        return false;
-    }
-
-    private static HashSet<Block> getDefaultBlockBlacklistServer() {
-        // Default block blacklist (applied on remote servers, separate from the user blacklist)
-        var set = new HashSet<Block>();
-        set.add(Blocks.BARRIER);                    // barrier
-        set.add(Blocks.COMMAND_BLOCK);              // command block
-        set.add(Blocks.CHAIN_COMMAND_BLOCK);        // chain command block
-        set.add(Blocks.REPEATING_COMMAND_BLOCK);    // repeating command block
-        set.add(Blocks.STRUCTURE_VOID);             // structure void
-        set.add(Blocks.STRUCTURE_BLOCK);            // structure block
-        set.add(Blocks.JIGSAW);                     // jigsaw block
-        set.add(Blocks.MOVING_PISTON);
-        set.add(Blocks.PISTON_HEAD);
-        set.add(Blocks.BUBBLE_COLUMN);
-        set.add(Blocks.LAVA);
-        set.add(Blocks.WATER);
-        set.add(Blocks.BEDROCK);
-        return set;
+    public boolean isBreakGuide() {
+        return true;
     }
 }

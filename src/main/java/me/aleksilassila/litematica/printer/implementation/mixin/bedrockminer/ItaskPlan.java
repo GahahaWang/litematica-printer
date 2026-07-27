@@ -1,6 +1,5 @@
 package me.aleksilassila.litematica.printer.implementation.mixin.bedrockminer;
 
-import com.github.bunnyi116.bedrockminer.task.TaskPlan;
 import com.github.bunnyi116.bedrockminer.task.TaskPlanItem;
 import net.minecraft.core.Direction;
 import org.spongepowered.asm.mixin.Mixin;

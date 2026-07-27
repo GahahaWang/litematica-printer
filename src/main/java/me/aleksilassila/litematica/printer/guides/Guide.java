@@ -136,4 +136,8 @@ abstract public class Guide extends BlockHelperImpl {
     public boolean skipOtherGuides() {
         return false;
     }
+
+    public boolean isBreakGuide() {
+        return false;
+    }
 }

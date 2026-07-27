@@ -49,7 +49,16 @@ public class PropertySpecificGuesserGuide extends GuesserGuide {
             WallBlock.WEST,
             WallBlock.NORTH,
             WallBlock.WATERLOGGED,
-            ComposterBlock.LEVEL
+            ComposterBlock.LEVEL,
+            BedBlock.OCCUPIED,
+            FenceGateBlock.IN_WALL,
+            SculkSensorBlock.PHASE,
+            SculkShriekerBlock.CAN_SUMMON,
+            SculkShriekerBlock.SHRIEKING,
+            LecternBlock.HAS_BOOK,
+            ShelfBlock.SIDE_CHAIN_PART,
+            JukeboxBlock.HAS_RECORD,
+            DecoratedPotBlock.CRACKED,
 
     };
 

@@ -5,8 +5,8 @@ import fi.dy.masa.malilib.util.StringUtils;
 import net.minecraft.util.StringRepresentable;
 
 public enum BreakerOption implements IConfigOptionListEntry, StringRepresentable {
-    HOLD("hold", "litematica-printer.config.generic.option.breakerOption.hold"),
-    AUTO("auto", "litematica-printer.config.generic.option.breakerOption.auto");
+    HOLD("hold", "litematica-printer.config.printer.option.breakerOption.hold"),
+    AUTO("auto", "litematica-printer.config.printer.option.breakerOption.auto");
 
     private final String value;
     private final String displayKey;

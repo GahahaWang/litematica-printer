@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(ServerboundMovePlayerPacket.class)
 public class PlayerMoveC2SPacketMixin {
-    @ModifyVariable(method = "<init>(DDDFFZZZZ)V", at = @At("HEAD"), ordinal = 0, argsOnly = true)
+    @ModifyVariable(method = "<init>(DDDFFZZZZ)V", at = @At("HEAD"), argsOnly = true, name = "yRot")
     private static float modifyLookYaw(float yaw) {
         Printer printer = LitematicaMixinMod.printer;
         if (printer == null) {
@@ -30,7 +30,7 @@ public class PlayerMoveC2SPacketMixin {
         }
     }
 
-    @ModifyVariable(method = "<init>(DDDFFZZZZ)V", at = @At("HEAD"), ordinal = 1, argsOnly = true)
+    @ModifyVariable(method = "<init>(DDDFFZZZZ)V", at = @At("HEAD"), argsOnly = true, name = "xRot")
     private static float modifyLookPitch(float pitch) {
         Printer printer = LitematicaMixinMod.printer;
         if (printer == null) {

@@ -37,6 +37,7 @@ abstract public class PlacementGuide extends Guide {
     public PlacementGuide(SchematicBlockState state) {
         super(state);
     }
+    private List<ItemStack> requiredItemCache = null;
 
     protected ItemStack getBlockItem(BlockState state) {
         // Let's use the Litematica Pick Block Cache for this.
@@ -60,8 +61,11 @@ abstract public class PlacementGuide extends Guide {
 
     @Override
     protected @Nonnull List<ItemStack> getRequiredItems() {
-        Printer.printDebug("PlacementGuide#getRequiredItems() - target state [{}]", state.targetState.toString());
-        return Collections.singletonList(getBlockItem(state.targetState));
+        if (requiredItemCache == null) {
+            requiredItemCache = Collections.singletonList(getBlockItem(state.targetState));
+            Printer.printDebug("{}#getRequiredItems() - target state [{}]", this.getClass().getSimpleName() ,state.targetState.toString());
+        }
+        return requiredItemCache;
     }
 
     abstract protected boolean getUseShift(SchematicBlockState state);

@@ -1,28 +1,51 @@
 package me.aleksilassila.litematica.printer.mixin;
 
-import com.google.common.collect.ImmutableList;
-import fi.dy.masa.litematica.gui.GuiConfigs;
-import fi.dy.masa.malilib.config.IConfigBase;
-import fi.dy.masa.malilib.config.options.ConfigHotkey;
-import me.aleksilassila.litematica.printer.config.Configs;
-import me.aleksilassila.litematica.printer.config.Hotkeys;
-import org.objectweb.asm.Opcodes;
-
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-
 import java.util.List;
+
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.gui.GuiConfigs;
+import fi.dy.masa.litematica.gui.GuiConfigs.ConfigGuiTab;
+import fi.dy.masa.malilib.config.ConfigManager;
+import fi.dy.masa.malilib.gui.GuiConfigsBase.ConfigOptionWrapper;
+import me.aleksilassila.litematica.printer.PrinterReference;
+import me.aleksilassila.litematica.printer.config.Configs;
+import me.aleksilassila.litematica.printer.gui.PrinterConfigGuiTab;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = GuiConfigs.class, remap = false)
 public class GuiConfigsMixin {
-    @Redirect(method = "getConfigs", at = @At(value = "FIELD", target = "Lfi/dy/masa/litematica/config/Configs$Generic;OPTIONS:Lcom/google/common/collect/ImmutableList;", opcode = Opcodes.GETSTATIC))
-    private ImmutableList<IConfigBase> moreOptions() {
-        return Configs.getConfigList();
+    @Inject(method = "getConfigs", at = @At("HEAD"), cancellable = true)
+    private void litematicaPrinter$getPrinterConfigs(CallbackInfoReturnable<List<ConfigOptionWrapper>> cir) {
+        if (litematicaPrinter$isPrinterTab()) {
+            cir.setReturnValue(ConfigOptionWrapper.createFor(Configs.getPrinterTabConfigs()));
+        }
     }
 
-    @Redirect(method = "getConfigs", at = @At(value = "FIELD", target = "Lfi/dy/masa/litematica/config/Hotkeys;HOTKEY_LIST:Ljava/util/List;", opcode = Opcodes.GETSTATIC))
-    private List<ConfigHotkey> moreHotkeys() {
-        return Hotkeys.getHotkeyList();
+    @Inject(method = "getAllConfigs", at = @At("RETURN"))
+    private void litematicaPrinter$addPrinterConfigsToAllTab(CallbackInfoReturnable<List<ConfigOptionWrapper>> cir) {
+        cir.getReturnValue().addAll(ConfigOptionWrapper.createFor(Configs.getPrinterTabConfigs()));
+    }
+
+    @Inject(method = "useKeybindSearch", at = @At("HEAD"), cancellable = true)
+    private void litematicaPrinter$useKeybindSearch(CallbackInfoReturnable<Boolean> cir) {
+        if (litematicaPrinter$isPrinterTab()) {
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "onSettingsChanged", at = @At("TAIL"))
+    private void litematicaPrinter$savePrinterConfigs(CallbackInfo ci) {
+        ConfigManager.getInstance().onConfigsChanged(PrinterReference.MOD_ID);
+    }
+
+    @Unique
+    private static boolean litematicaPrinter$isPrinterTab() {
+        ConfigGuiTab printerTab = PrinterConfigGuiTab.get();
+        return printerTab != null && DataManager.getConfigGuiTab() == printerTab;
     }
 }

@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,14 +32,14 @@ public class SmartRedstoneGuide extends Guide {
     @Override
     public @Nonnull List<Action> execute(LocalPlayer player) {
         // This guide only checks and skips, doesn't execute actions
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override
     protected @Nonnull List<ItemStack> getRequiredItems() {
         // Smart redstone guide doesn't require any specific items
         // It only checks conditions and decides whether to skip placement
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override

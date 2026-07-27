@@ -5,9 +5,9 @@
     "compatibilityLevel": "JAVA_21",
     "client": [
         "AxeItemAccessor",
-        "ConfigsMixin",
+        "ConfigGuiTabInvoker",
+        "ConfigGuiTabMixin",
         "GuiConfigsMixin",
-        "InputHandlerMixin",
         "PlayerMoveC2SPacketMixin"
     ],
     "injectors": {

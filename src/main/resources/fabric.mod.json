@@ -25,7 +25,8 @@
   ],
   "depends": {
     "minecraft": "~26.1-",
-    "fabric-networking-api-v1": ">=6.3.0"
+    "fabric-networking-api-v1": ">=6.3.0",
+    "litematica": ">=0.27.1"
   },
   "recommends": {
     "bedrockminer": "*"

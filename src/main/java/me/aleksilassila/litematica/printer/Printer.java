@@ -9,28 +9,29 @@ import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
 import me.aleksilassila.litematica.printer.actions.Action;
 import me.aleksilassila.litematica.printer.config.Configs;
-import me.aleksilassila.litematica.printer.config.Hotkeys;
 import me.aleksilassila.litematica.printer.guides.Guide;
 import me.aleksilassila.litematica.printer.guides.Guides;
+import me.aleksilassila.litematica.printer.guides.interaction.BreakBlockGuide;
 import me.aleksilassila.litematica.printer.utils.BedrockMinerCompact;
 import me.aleksilassila.litematica.printer.utils.PositionCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Printer {
-    public static final Logger logger = LogManager.getLogger(PrinterReference.MOD_ID);
+    public static final Logger logger = LoggerFactory.getLogger(PrinterReference.MOD_NAME);
     @Nonnull
     public final LocalPlayer player;
     public final ActionHandler actionHandler;
@@ -45,25 +46,20 @@ public class Printer {
     public boolean onGameTick(){
         WorldSchematic worldSchematic = SchematicWorldHandler.getSchematicWorld();
 
-        if (!actionHandler.acceptsActions()) {
-            return false;
-        }
-
         if (worldSchematic == null) {
             return false;
         }
 
-        if (!Configs.PRINT_MODE.getBooleanValue() && !Hotkeys.PRINT.getKeybind().isPressed()) {
+        if (!Configs.PRINT_MODE.getBooleanValue() && !Configs.PRINT.getKeybind().isPressed()) {
             return false;
         }
 
         if (LitematicaMixinMod.breaker.isBreakingBlock()) {
-            printDebug("Breaker is currently breaking a block, skipping other operations");
+            //printDebug("Breaker is currently breaking a block, skipping other operations");
             return false;
         }
 
-        Abilities abilities = player.getAbilities();
-        if (!abilities.mayBuild) {
+        if (!player.getAbilities().mayBuild) {
             return false;
         }
 
@@ -80,22 +76,39 @@ public class Printer {
             SchematicBlockState state = new SchematicBlockState(player.level(), worldSchematic, position);
             BlockState cs = state.currentState;
             BlockState ts = state.targetState;
-            if (ts.equals(cs) || cs.is(Blocks.MOVING_PISTON)) {
+            if (ts.equals(cs) || cs.is(Blocks.PISTON_HEAD) || cs.is(Blocks.MOVING_PISTON) || ts.is(Blocks.PISTON_HEAD) || ts.is(Blocks.MOVING_PISTON)) {
                 continue;
             }
             if (!cs.canBeReplaced() && !cs.is(ts.getBlock()) && !Configs.BREAK_BLOCKS.getBooleanValue()) {
                 continue;
             }
-
-            Guide[] guides = interactionGuides.getInteractionGuides(state);
+            if (cs.canBeReplaced() && !state.world.isUnobstructed(ts, position, CollisionContext.empty())) {
+                continue;
+            }
+            if (ts.getBlock() instanceof LiquidBlock) {
+                continue;
+            }
+            Guide[] guides;
+            // Paper server only one placement/interaction per tick.
+            // but allow break multiple blocks per tick.
+            if (!actionHandler.acceptsActions(state.blockPos)) {
+                continue;
+            }
+            if (actionHandler.acceptsActions()) {
+                guides = interactionGuides.getInteractionGuides(state);
+            }
+            else {
+                guides = new Guide[]{new BreakBlockGuide(state)};
+            }
 
             for (Guide guide : guides) {
                 if (guide.canExecute(player) && Configs.INTERACT_BLOCKS.getBooleanValue()) {
                     printDebug("Executing {} for {}", guide, state);
                     List<Action> actions = guide.execute(player);
-                    actionHandler.addActions(actions);
-                    positionCache.cachePosition(position);
-                    return true;
+                    if(actionHandler.addActions(actions)) {
+                        positionCache.cachePosition(position);
+                        return !guide.isBreakGuide();
+                    }
                 }
                 if (guide.skipOtherGuides()) {
                     continue findBlock;
@@ -115,13 +128,11 @@ public class Printer {
             return List.of();
         }
 
-        BlockPos playerBlockPos = this.player.blockPosition();
-        int baseX = playerBlockPos.getX();
-        int baseY = playerBlockPos.getY();
-        int baseZ = playerBlockPos.getZ();
-        Vec3 playerPos = this.player.position();
         Vec3 eyePos = this.player.getEyePosition();
-
+        BlockPos intEyePos = BlockPos.containing(eyePos);
+        int baseX = intEyePos.getX();
+        int baseY = intEyePos.getY();
+        int baseZ = intEyePos.getZ();
         int diameter = maxReach * 2 + 1;
         ArrayList<BlockPos> positions = new ArrayList<>(diameter * diameter * diameter);
 
@@ -129,9 +140,9 @@ public class Printer {
             int blockY = baseY + y;
             for (int x = -maxReach; x <= maxReach; x++) {
                 int blockZ = baseZ - x;
-
                 for (int z = -maxReach; z <= maxReach; z++) {
                     int blockX = baseX - z;
+
                     BlockPos blockPos = new BlockPos(blockX, blockY, blockZ);
 
                     if (!DataManager.getRenderLayerRange().isPositionWithinRange(blockPos)) {
@@ -143,13 +154,13 @@ public class Printer {
                     double centerZ = blockZ + 0.5D;
 
                     double eyeDistanceSquared = eyePos.distanceToSqr(centerX, centerY, centerZ);
-                    if (eyeDistanceSquared > maxReachSquared || eyeDistanceSquared <= 1D) {
+                    if (eyeDistanceSquared > maxReachSquared) { // || eyeDistanceSquared <= 1D) {
                         continue;
                     }
 
-                    if (playerPos.distanceToSqr(centerX, centerY, centerZ) <= 1D) {
-                        continue;
-                    }
+//                    if (playerPos.distanceToSqr(centerX, centerY, centerZ) <= 1D) {
+//                        continue;
+//                    }
 
                     if (!isPositionInSchematicBounds(blockPos, activeBounds)) {
                         continue;
@@ -160,10 +171,11 @@ public class Printer {
             }
         }
 
+        boolean farFirst = Configs.FAR_FIRST.getBooleanValue();
         positions.sort((a, b) -> {
-            double aDistance = playerPos.distanceToSqr(a.getX() + 0.5D, a.getY() + 0.5D, a.getZ() + 0.5D);
-            double bDistance = playerPos.distanceToSqr(b.getX() + 0.5D, b.getY() + 0.5D, b.getZ() + 0.5D);
-            return Double.compare(aDistance, bDistance);
+            double aDistance = eyePos.distanceToSqr(a.getX() + 0.5D, a.getY() + 0.5D, a.getZ() + 0.5D);
+            double bDistance = eyePos.distanceToSqr(b.getX() + 0.5D, b.getY() + 0.5D, b.getZ() + 0.5D);
+            return farFirst ? Double.compare(bDistance, aDistance) : Double.compare(aDistance, bDistance);
         });
 
         return positions;

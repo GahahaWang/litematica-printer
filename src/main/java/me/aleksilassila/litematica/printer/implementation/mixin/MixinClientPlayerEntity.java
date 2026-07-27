@@ -7,17 +7,14 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 import me.aleksilassila.litematica.printer.LitematicaMixinMod;
 import me.aleksilassila.litematica.printer.Printer;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
-import me.aleksilassila.litematica.printer.implementation.LocalPlayerRotationWrapper;
-import net.minecraft.client.ClientRecipeBook;
+import me.aleksilassila.litematica.printer.actions.InteractAction;
+import me.aleksilassila.litematica.printer.actions.PrepareAction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.chat.ChatAbilities;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
-import net.minecraft.stats.StatsCounter;
-import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -43,12 +40,6 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
         super(world, profile);
     }
 
-    @Inject(at = @At("TAIL"), method = "<init>")
-    public void newWrapper (Minecraft minecraft, ClientLevel level, ClientPacketListener connection, StatsCounter stats, ClientRecipeBook recipeBook, Input lastSentInput, boolean wasSprinting, ChatAbilities chatAbilities, CallbackInfo ci) {
-        LocalPlayerRotationWrapper.isWrapperInit = false;
-    }
-
-
     @Inject(at = @At("TAIL"), method = "tick")
     public void tick(CallbackInfo ci) {
         LocalPlayer clientPlayer = (LocalPlayer) (Object) this;
@@ -64,13 +55,10 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
         }
         LitematicaMixinMod.bedrockMinerCompact.onClientTick(minecraft);
         // Dirty optimization
-        boolean didFindPlacement = true;
-        for (int i = 0; i < 10; i++) {
-            if (didFindPlacement) {
-                didFindPlacement = LitematicaMixinMod.printer.onGameTick();
-            }
-            LitematicaMixinMod.printer.actionHandler.onGameTick();
+        for (int i = 0; i < 20; i++) {
+            LitematicaMixinMod.printer.onGameTick();
         }
+        LitematicaMixinMod.printer.actionHandler.onGameTick();
     }
 
 //    @Unique
@@ -117,5 +105,27 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public float getXRot() {
+        if(InteractAction.useItemOnCallByPrinter) {
+            PrepareAction lookAction = LitematicaMixinMod.printer.actionHandler.lookAction;
+            if (lookAction != null && lookAction.modifyPitch) {
+                return lookAction.pitch;
+            }
+        }
+        return super.getXRot();
+    }
+
+    @Override
+    public float getYRot() {
+        if(InteractAction.useItemOnCallByPrinter) {
+            PrepareAction lookAction = LitematicaMixinMod.printer.actionHandler.lookAction;
+            if (lookAction != null && lookAction.modifyYaw) {
+                return lookAction.yaw;
+            }
+        }
+        return super.getYRot();
     }
 }

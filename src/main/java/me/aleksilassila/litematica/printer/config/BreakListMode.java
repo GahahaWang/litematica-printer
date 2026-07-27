@@ -4,15 +4,15 @@ import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import fi.dy.masa.malilib.util.StringUtils;
 import net.minecraft.util.StringRepresentable;
 
-public enum BreakPreference implements IConfigOptionListEntry, StringRepresentable {
-    DEFAULT("default", "litematica-printer.config.printer.option.breakPreference.default"),
-    FORTUNE("fortune", "litematica-printer.config.printer.option.breakPreference.fortune"),
-    SILK_TOUCH("silkTouch", "litematica-printer.config.printer.option.breakPreference.silkTouch");
+public enum BreakListMode implements IConfigOptionListEntry, StringRepresentable {
+    NONE("none", "litematica-printer.config.printer.option.breakListMode.none"),
+    BLACKLIST("blacklist", "litematica-printer.config.printer.option.breakListMode.blacklist"),
+    WHITELIST("whitelist", "litematica-printer.config.printer.option.breakListMode.whitelist");
 
     private final String value;
     private final String displayKey;
 
-    BreakPreference(String value, String displayKey) {
+    BreakListMode(String value, String displayKey) {
         this.value = value;
         this.displayKey = displayKey;
     }
@@ -29,7 +29,7 @@ public enum BreakPreference implements IConfigOptionListEntry, StringRepresentab
 
     @Override
     public IConfigOptionListEntry cycle(boolean forward) {
-        BreakPreference[] values = values();
+        BreakListMode[] values = values();
         int index = this.ordinal();
         int nextIndex = forward ? index + 1 : index - 1;
         if (nextIndex >= values.length) {
@@ -42,12 +42,12 @@ public enum BreakPreference implements IConfigOptionListEntry, StringRepresentab
 
     @Override
     public IConfigOptionListEntry fromString(String value) {
-        for (BreakPreference preference : values()) {
-            if (preference.value.equalsIgnoreCase(value)) {
-                return preference;
+        for (BreakListMode mode : values()) {
+            if (mode.value.equalsIgnoreCase(value)) {
+                return mode;
             }
         }
-        return DEFAULT;
+        return NONE;
     }
 
     @Override

@@ -9,6 +9,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 abstract public class InteractAction extends Action {
     public final PrinterPlacementContext context;
+    public static boolean useItemOnCallByPrinter = false;
 
     public InteractAction(PrinterPlacementContext context) {
         this.context = context;
@@ -18,7 +19,9 @@ abstract public class InteractAction extends Action {
 
     @Override
     public void send(Minecraft client, LocalPlayer player) {
+        useItemOnCallByPrinter = true;
         interact(client, player, InteractionHand.MAIN_HAND, context.hitResult);
+        useItemOnCallByPrinter = false;
         Printer.printDebug("InteractAction.send: Blockpos: {} Side: {} HitPos: {}", context.getClickedPos(), context.getClickedFace(), context.getClickLocation());
     }
 

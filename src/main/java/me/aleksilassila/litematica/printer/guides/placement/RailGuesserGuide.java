@@ -37,12 +37,18 @@ public class RailGuesserGuide extends GuesserGuide {
          * Then return false
          */
 
-        if (getRailShape(resultState).isPresent()) {
-            if (Arrays.stream(STRAIGHT_RAIL_SHAPES)
-                    .anyMatch(shape -> shape == getRailShape(resultState).orElse(null))) {
-                return super.statesEqualIgnoreProperties(resultState, targetState, BlockStateProperties.RAIL_SHAPE,
-                        BlockStateProperties.RAIL_SHAPE_STRAIGHT, BlockStateProperties.POWERED);
-            }
+        RailShape schematicTargetShape = getRailShape(this.targetState).orElse(null);
+        boolean targetIsCurve = schematicTargetShape != null
+                && Arrays.stream(STRAIGHT_RAIL_SHAPES).noneMatch(shape -> shape == schematicTargetShape)
+                && !schematicTargetShape.isSlope();
+
+        BlockState other = resultState == this.targetState ? targetState : resultState;
+        boolean otherIsStraight = getRailShape(other).isPresent()
+                && Arrays.stream(STRAIGHT_RAIL_SHAPES).anyMatch(shape -> shape == getRailShape(other).get());
+
+        if (targetIsCurve && otherIsStraight) {
+            return super.statesEqualIgnoreProperties(resultState, targetState, BlockStateProperties.RAIL_SHAPE,
+                    BlockStateProperties.RAIL_SHAPE_STRAIGHT, BlockStateProperties.POWERED);
         }
 
         return super.statesEqual(resultState, targetState);

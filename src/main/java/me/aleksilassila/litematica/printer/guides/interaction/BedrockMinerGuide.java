@@ -31,6 +31,9 @@ public class BedrockMinerGuide extends BreakBlockGuide {
         if (currentState.isAir()) {
             return false;
         }
+        if (Configs.AVOID_BREAKING_UNDER_PLAYER.getBooleanValue() && state.blockPos.equals(player.blockPosition().below())) {
+            return false;
+        }
         if (IGNORE_EXISTING_BLOCKS.getBooleanValue() && getIgnoreBlockRegistry().hasBlock(state.currentState.getBlock())) {
             return false;
         }
@@ -46,10 +49,5 @@ public class BedrockMinerGuide extends BreakBlockGuide {
     public @NonNull List<Action> execute(LocalPlayer player) {
         BedrockMinerCompact.addTask(task);
         return Collections.emptyList();
-    }
-
-    @Override
-    public boolean skipOtherGuides() {
-        return false;
     }
 }
