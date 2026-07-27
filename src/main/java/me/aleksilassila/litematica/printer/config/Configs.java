@@ -55,6 +55,13 @@ public class Configs implements IConfigHandler {
     public static final ConfigBoolean AVOID_CHECK_ONLY_PISTONS = new ConfigBoolean("avoidCheckOnlyPistons", true).apply(PRINTER_KEY);
     public static final ConfigBoolean ROTATE = new ConfigBoolean("rotate", true).apply(PRINTER_KEY);
 
+    // HUD configs
+    public static final ConfigBoolean PRINTER_ON_HUD_ENABLED = new ConfigBoolean("printerOnHudEnabled", true).apply(PRINTER_KEY);
+    public static final ConfigInteger PRINTER_ON_HUD_X = new ConfigInteger("printerOnHudX", 4, 0, 2000).apply(PRINTER_KEY);
+    public static final ConfigInteger PRINTER_ON_HUD_Y = new ConfigInteger("printerOnHudY", 4, 0, 2000).apply(PRINTER_KEY);
+    public static final ConfigColor PRINTER_ON_HUD_COLOR = new ConfigColor("printerOnHudColor", "#FF27C300").apply(PRINTER_KEY);
+    public static final ConfigDouble PRINTER_ON_HUD_SCALE = new ConfigDouble("printerOnHudScale", 2.0, 0.25, 4.0).apply(PRINTER_KEY);
+
     // Hotkeys
     public static final ConfigHotkey PRINT = new ConfigHotkey("print", "V", KeybindSettings.PRESS_ALLOWEXTRA_EMPTY).apply(PRINTER_KEY);
     public static final ConfigHotkey TOGGLE_PRINTING_MODE = new ConfigHotkey("togglePrintingMode", "CAPS_LOCK", KeybindSettings.PRESS_ALLOWEXTRA_EMPTY).apply(PRINTER_KEY);
@@ -89,6 +96,11 @@ public class Configs implements IConfigHandler {
             FALLING_BLOCK_PRINT_IN_AIR,
             PRINTER_CACHE_MS,
             ROTATE,
+            PRINTER_ON_HUD_ENABLED,
+            PRINTER_ON_HUD_X,
+            PRINTER_ON_HUD_Y,
+            PRINTER_ON_HUD_COLOR,
+            PRINTER_ON_HUD_SCALE,
             SMART_REDSTONE_ENABLED,
             OBSERVER_AVOID_ALL,
             SUPPRESS_PUSH_LIMIT,
