@@ -20,16 +20,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
-import net.minecraft.world.item.FlintAndSteelItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -91,8 +90,10 @@ public class Breaker implements IClientTickHandler {
             return false;
         }
 
-        double maxReach = Configs.PRINTING_RANGE.getDoubleValue();
-        if (this.mc.player.position().distanceToSqr(Vec3.atCenterOf(this.pos)) > maxReach * maxReach) {
+        double eyeDistanceSquared = this.mc.player.getEyePosition().distanceToSqr(Vec3.atCenterOf(this.pos));
+        double maxReachSquared = Mth.square(Configs.PRINTING_RANGE.getDoubleValue());
+        if (eyeDistanceSquared > maxReachSquared) {
+            cancelBreaking();
             return false;
         }
 
@@ -108,7 +109,7 @@ public class Breaker implements IClientTickHandler {
     public void cancelBreaking() {
         if (this.mc.gameMode != null && pos != null) {
             this.pos = null;
-            this.mc.gameMode.stopDestroyBlock();
+            //this.mc.gameMode.stopDestroyBlock();
         }
     }
 
@@ -258,14 +259,13 @@ public class Breaker implements IClientTickHandler {
             cancelBreaking();
             return;
         }
-        //InventoryUtils2.tick();
         if (!isBreakingBlock()) {
             cancelBreaking();
             return;
         }
 
         if (this.mc.gameMode.continueDestroyBlock(pos, Direction.UP)) {
-            this.mc.player.swing(InteractionHand.MAIN_HAND);
+            //this.mc.player.swing(InteractionHand.MAIN_HAND);
         }
 
         // Check if the block broke as a result of this tick's progress

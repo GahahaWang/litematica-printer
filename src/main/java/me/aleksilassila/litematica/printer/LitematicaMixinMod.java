@@ -4,6 +4,7 @@ import fi.dy.masa.malilib.event.InitializationHandler;
 import fi.dy.masa.malilib.event.TickHandler;
 import me.aleksilassila.litematica.printer.event.KeyCallbacks;
 import me.aleksilassila.litematica.printer.event.PrinterInitHandler;
+import me.aleksilassila.litematica.printer.gui.PrinterOnHud;
 import me.aleksilassila.litematica.printer.utils.BedrockMinerCompact;
 import me.aleksilassila.litematica.printer.utils.Breaker;
 import net.fabricmc.api.ModInitializer;
@@ -24,6 +25,7 @@ public class LitematicaMixinMod implements ModInitializer {
         TickHandler.getInstance().registerClientTickHandler(breaker);
 
         KeyCallbacks.init(Minecraft.getInstance());
+        PrinterOnHud.registerHud();
         Printer.logger.info("{} initialized.", PrinterReference.MOD_STRING);
     }
 }

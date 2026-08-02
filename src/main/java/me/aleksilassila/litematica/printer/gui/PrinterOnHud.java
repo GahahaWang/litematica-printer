@@ -1,40 +1,28 @@
-package me.aleksilassila.litematica.printer.mixin;
+package me.aleksilassila.litematica.printer.gui;
 
+import me.aleksilassila.litematica.printer.PrinterReference;
 import me.aleksilassila.litematica.printer.config.Configs;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.profiling.Profiler;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = Gui.class)
-public class GuiMixin {
-    @Unique
+public class PrinterOnHud {
     private static final long PRINTER_FADE_OUT_MS = 3000L;
-
-    @Unique
     private boolean printerWasOn = false;
-
-    @Unique
     private long printerOffAtMs = -1L;
+    public static void registerHud() {
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(PrinterReference.MOD_ID, "printerOnMessage"),
+                new PrinterOnHud()::renderPrinerOnHud
+        );
+    }
 
-    @Inject(
-            method = "extractRenderState",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Gui;extractOverlayMessage(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V",
-                    shift = At.Shift.AFTER
-            )
-    )
-    public void renderPrinerOnHud(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    public void renderPrinerOnHud(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
         if (!Configs.PRINTER_ON_HUD_ENABLED.getBooleanValue()) {
             return;
         }

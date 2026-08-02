@@ -55,7 +55,7 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
         }
         LitematicaMixinMod.bedrockMinerCompact.onClientTick(minecraft);
         // Dirty optimization
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             LitematicaMixinMod.printer.onGameTick();
         }
         LitematicaMixinMod.printer.actionHandler.onGameTick();

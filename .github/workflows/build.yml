@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: validate gradle wrapper
         uses: gradle/actions/wrapper-validation@v5
@@ -40,10 +40,15 @@ jobs:
 
       - name: build
         run: ./gradlew build
-
+      - name: Find built JAR
+        id: jar
+        run: |
+          JAR=$(ls build/*.jar | grep -v sources | grep -v javadoc | head -n1)
+          echo "PATH=$JAR" >> $GITHUB_OUTPUT
+          echo "NAME=$(basename $JAR)" >> $GITHUB_OUTPUT
       - name: capture build artifacts
         if: ${{ runner.os == 'Linux' }}
         uses: actions/upload-artifact@v6
         with:
-          name: build-artifacts
-          path: build/libs/
+          name: ${{ steps.jar.outputs.NAME }}
+          path: ${{ steps.jar.outputs.PATH }}
