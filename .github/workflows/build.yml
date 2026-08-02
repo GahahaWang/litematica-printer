@@ -50,5 +50,6 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         uses: actions/upload-artifact@v6
         with:
+          archive: false
           name: ${{ steps.jar.outputs.NAME }}
           path: ${{ steps.jar.outputs.PATH }}
