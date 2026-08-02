@@ -17,7 +17,7 @@ public class PrinterOnHud {
     private boolean printerWasOn = false;
     private long printerOffAtMs = -1L;
     public static void registerHud() {
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(PrinterReference.MOD_ID, "printerOnMessage"),
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(PrinterReference.MOD_ID, "printer_on_message"),
                 new PrinterOnHud()::renderPrinerOnHud
         );
     }
