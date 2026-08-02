@@ -48,7 +48,7 @@ jobs:
           echo "NAME=$(basename $JAR)" >> $GITHUB_OUTPUT
       - name: capture build artifacts
         if: ${{ runner.os == 'Linux' }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.jar.outputs.NAME }}
           path: ${{ steps.jar.outputs.PATH }}
