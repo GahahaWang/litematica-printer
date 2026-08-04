@@ -94,16 +94,24 @@ public class BreakBlockGuide extends Guide {
 
         // Determine if breaking is needed
         boolean needsBreaking = !currentState.getBlock().equals(targetState.getBlock());
-        // Special case for flower pots - filling an empty pot is a right-click
-        // interaction (FlowerPotFillGuide), not a break+place
-        if (needsBreaking && currentState.is(Blocks.FLOWER_POT) && targetState.getBlock() instanceof FlowerPotBlock) {
-            needsBreaking = false;
-        }
-        // Special case for slabs - need to break if the type is wrong
-        if (!needsBreaking &&
-            currentState.getBlock() instanceof SlabBlock &&
-            targetState.getBlock() instanceof SlabBlock) {
-            needsBreaking = isUnrepealableSlabState();
+
+        NeedBreak:
+        if (needsBreaking) {
+            // FlowerPotFillGuide
+            if (currentState.is(Blocks.FLOWER_POT) && targetState.getBlock() instanceof FlowerPotBlock){
+                needsBreaking = false;
+                break NeedBreak;
+            }
+            // LogStrippingGuide
+            if (new LogStrippingGuide(state).canExecute(player)) {
+                needsBreaking = false;
+                break NeedBreak;
+            }
+            // Wrong Slab
+            if(currentState.getBlock() instanceof SlabBlock && targetState.getBlock() instanceof SlabBlock) {
+                needsBreaking = isUnrepealableSlabState();
+                break NeedBreak;
+            }
         }
 
         return needsBreaking;
