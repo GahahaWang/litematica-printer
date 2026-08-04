@@ -7,6 +7,7 @@ import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import me.aleksilassila.litematica.printer.Printer;
 import me.aleksilassila.litematica.printer.config.Configs;
+import me.aleksilassila.litematica.printer.guides.interaction.BreakBlockGuide;
 import me.aleksilassila.litematica.printer.implementation.mixin.bedrockminer.IConfig;
 import me.aleksilassila.litematica.printer.implementation.mixin.bedrockminer.ITask;
 import me.aleksilassila.litematica.printer.implementation.mixin.bedrockminer.ITaskManager;
@@ -306,6 +307,9 @@ public final class BedrockMinerCompact implements IClientTickHandler {
     @Override
     public void onClientTick(Minecraft mc) {
         if (mc.player == null || mc.level == null || mc.gameMode == null || mc.getConnection() == null || !bedrockMinerAvailable) {
+            return;
+        }
+        if (!Configs.BREAKER_USE_BEDROCK_MINER.getBooleanValue() || !BreakBlockGuide.isBreakerAllowed()) {
             return;
         }
         ITaskManager taskManager = getTaskManager();

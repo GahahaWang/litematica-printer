@@ -109,7 +109,7 @@ public class BreakBlockGuide extends Guide {
         return needsBreaking;
     }
 
-    protected boolean isBreakerAllowed() {
+    public static boolean isBreakerAllowed() {
         if (!Configs.BREAK_BLOCKS.getBooleanValue()) {
             return false;
         }
