@@ -8,6 +8,7 @@
         "ConfigGuiTabInvoker",
         "ConfigGuiTabMixin",
         "GuiConfigsMixin",
+        "InventoryUtilsAccessor",
         "PlayerMoveC2SPacketMixin"
     ],
     "injectors": {

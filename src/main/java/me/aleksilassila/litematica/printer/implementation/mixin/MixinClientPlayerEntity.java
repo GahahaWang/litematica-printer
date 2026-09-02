@@ -9,6 +9,7 @@ import me.aleksilassila.litematica.printer.Printer;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.actions.InteractAction;
 import me.aleksilassila.litematica.printer.actions.PrepareAction;
+import me.aleksilassila.litematica.printer.utils.PrinterInventoryUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -52,6 +53,7 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
         if (LitematicaMixinMod.printer == null || LitematicaMixinMod.printer.player != clientPlayer) {
             Printer.printDebug("Initializing printer, player: {}, client: {}", clientPlayer, minecraft);
             LitematicaMixinMod.printer = new Printer(minecraft, clientPlayer);
+            PrinterInventoryUtils.resetSlotRoundRobin();
         }
         LitematicaMixinMod.bedrockMinerCompact.onClientTick(minecraft);
         // Dirty optimization

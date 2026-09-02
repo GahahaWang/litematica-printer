@@ -3,16 +3,17 @@ package me.aleksilassila.litematica.printer.actions;
 import me.aleksilassila.litematica.printer.Printer;
 import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.implementation.PrinterPlacementContext;
+import me.aleksilassila.litematica.printer.utils.PrinterInventoryUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import fi.dy.masa.litematica.util.InventoryUtils;
 
 public class PrepareAction extends Action {
     public final PrinterPlacementContext context;
@@ -59,7 +60,7 @@ public class PrepareAction extends Action {
         ItemStack itemStack = context.getItemInHand();
         int slot = context.requiredItemSlot;
 
-        if (itemStack != null && !itemStack.isEmpty() && client.gameMode != null) {
+        if (!itemStack.isEmpty() && client.gameMode != null) {
             Printer.printDebug("PrepareAction#send(): slot [{}] // itemStack [{}]", slot, itemStack.toString());
             // This thing is straight from MinecraftClient#doItemPick()
             Inventory inventory = player.getInventory();
@@ -70,10 +71,9 @@ public class PrepareAction extends Action {
             } else if (slot != -1) {
                 if (Inventory.isHotbarSlot(slot)) {
                     inventory.setSelectedSlot(slot);
+                    client.getConnection().send(new ServerboundSetCarriedItemPacket(inventory.getSelectedSlot()));
                 } else {
-                    // TODO --> test this (pickFromInventory has been REMOVED)
-                    //client.interactionManager.pickFromInventory(slot);
-                    InventoryUtils.setPickedItemToHand(slot, itemStack, client);
+                    PrinterInventoryUtils.setPickedItemToHand(slot, itemStack, client);
                 }
             }
         }

@@ -1,34 +1,24 @@
 package me.aleksilassila.litematica.printer.utils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Optional;
 
 import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
-import fi.dy.masa.malilib.util.EquipmentUtils;
 import me.aleksilassila.litematica.printer.LitematicaMixinMod;
-import me.aleksilassila.litematica.printer.Printer;
 import me.aleksilassila.litematica.printer.config.BreakPreference;
 import me.aleksilassila.litematica.printer.config.BreakerOption;
 import me.aleksilassila.litematica.printer.config.Configs;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -58,7 +48,7 @@ public class Breaker implements IClientTickHandler {
         int bestSlotId = getBestItemSlotIdToMineBlock(this.mc, pos);
 
         if (bestSlotId != -1) {
-            InventoryUtils.survivalSwap(mc, mc.player, bestSlotId);
+            PrinterInventoryUtils.survivalSwap(mc, mc.player, bestSlotId);
         }
 
         // Check if can break instantly with this tool
@@ -260,9 +250,9 @@ public class Breaker implements IClientTickHandler {
             return;
         }
 
-        if (this.mc.gameMode.continueDestroyBlock(pos, Direction.UP)) {
-            //this.mc.player.swing(InteractionHand.MAIN_HAND);
-        }
+//        if (this.mc.gameMode.continueDestroyBlock(pos, Direction.UP)) {
+//            //this.mc.player.swing(InteractionHand.MAIN_HAND);
+//        }
 
         // Check if the block broke as a result of this tick's progress
         BlockState state = this.mc.level.getBlockState(pos);
