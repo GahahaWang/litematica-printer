@@ -2,6 +2,7 @@ package me.aleksilassila.litematica.printer;
 
 import fi.dy.masa.malilib.event.InitializationHandler;
 import fi.dy.masa.malilib.event.TickHandler;
+import me.aleksilassila.litematica.printer.command.PrinterCommand;
 import me.aleksilassila.litematica.printer.event.KeyCallbacks;
 import me.aleksilassila.litematica.printer.event.PrinterInitHandler;
 import me.aleksilassila.litematica.printer.gui.PrinterOnHud;
@@ -26,6 +27,7 @@ public class LitematicaMixinMod implements ModInitializer {
 
         KeyCallbacks.init(Minecraft.getInstance());
         PrinterOnHud.registerHud();
+        PrinterCommand.register();
         Printer.logger.info("{} initialized.", PrinterReference.MOD_STRING);
     }
 }

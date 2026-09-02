@@ -111,8 +111,11 @@ public class Printer {
                     }
                 }
                 if (guide.skipOtherGuides()) {
-                    continue findBlock;
+                    break;
                 }
+            }
+            if(cs.is(ts.getBlock())) {
+                positionCache.cachePosition(position);
             }
         }
 

@@ -25,7 +25,7 @@ public class Configs implements IConfigHandler {
 
     // Configs settings
     public static final ConfigInteger PRINTING_INTERVAL = new ConfigInteger("printingInterval", 12, 1, 40).apply(PRINTER_KEY);
-    public static final ConfigDouble PRINTING_RANGE = new ConfigDouble("printingRange", 5, 2.5, 5).apply(PRINTER_KEY);
+    public static final ConfigDouble PRINTING_RANGE = new ConfigDouble("printingRange", 5, 1, 6).apply(PRINTER_KEY);
     public static final ConfigBoolean FAR_FIRST = new ConfigBoolean("farFirst", false).apply(PRINTER_KEY);
     public static final ConfigBoolean PRINT_MODE = new ConfigBoolean("printingMode", false).apply(PRINTER_KEY);
     public static final ConfigBoolean PRINT_DEBUG = new ConfigBoolean("printingDebug", false).apply(PRINTER_KEY);
