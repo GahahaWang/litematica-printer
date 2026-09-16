@@ -59,6 +59,12 @@ public class PropertySpecificGuesserGuide extends GuesserGuide {
             ShelfBlock.SIDE_CHAIN_PART,
             JukeboxBlock.HAS_RECORD,
             DecoratedPotBlock.CRACKED,
+            HugeMushroomBlock.EAST,
+            HugeMushroomBlock.WEST,
+            HugeMushroomBlock.NORTH,
+            HugeMushroomBlock.SOUTH,
+            HugeMushroomBlock.DOWN,
+            HugeMushroomBlock.UP
 
     };
 
