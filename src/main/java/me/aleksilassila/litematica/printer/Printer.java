@@ -54,7 +54,7 @@ public class Printer {
             return false;
         }
 
-        if (LitematicaMixinMod.breaker.isBreakingBlock()) {
+        if (LitematicaMixinMod.breaker.validateBreakingTarget()) {
             //printDebug("Breaker is currently breaking a block, skipping other operations");
             return false;
         }

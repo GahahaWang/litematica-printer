@@ -70,11 +70,7 @@ public class ActionHandler {
     );
 
     private boolean isPaperLikeServer() {
-        if (client.getConnection() == null) {
-            return false;
-        }
-
-        String brand = client.getConnection().serverBrand();
+         String brand = client.getConnection().serverBrand();
         return brand != null && PAPER_BRANDS.contains(brand.toLowerCase(Locale.ROOT));
     }
 
@@ -90,7 +86,7 @@ public class ActionHandler {
     }
 
     public boolean addActions(List<Action> actions) {
-        if (LitematicaMixinMod.breaker.isBreakingBlock()) {
+        if (LitematicaMixinMod.breaker.validateBreakingTarget()) {
             return false;
         }
 

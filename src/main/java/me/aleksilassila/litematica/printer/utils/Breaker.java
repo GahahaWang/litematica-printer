@@ -3,7 +3,6 @@ package me.aleksilassila.litematica.printer.utils;
 import java.util.Optional;
 
 import fi.dy.masa.litematica.config.Hotkeys;
-import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import me.aleksilassila.litematica.printer.LitematicaMixinMod;
 import me.aleksilassila.litematica.printer.config.BreakPreference;
 import me.aleksilassila.litematica.printer.config.BreakerOption;
@@ -23,78 +22,74 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 @SuppressWarnings("DataFlowIssue")
-public class Breaker implements IClientTickHandler {
+public class Breaker{
     private final Minecraft mc;
     private BlockPos pos;
+    private BlockState state;
 
     public Breaker(Minecraft mc) {
         this.mc = mc;
     }
 
-    public boolean startBreakingBlock(BlockPos pos) {
+    public void startBreakingBlock(BlockPos pos) {
+        if (this.mc.player.getAbilities().instabuild || this.mc.level.getBlockState(pos).getDestroySpeed(this.mc.level, pos) == 0) {
+            this.mc.gameMode.startDestroyBlock(pos, Direction.UP);
+            return;
+        }
         if (!LitematicaMixinMod.printer.actionHandler.isQueueEmpty()) {
-            return false;
+            return;
         }
 
         this.pos = pos;
-
-        // Check if block can be broken instantly
-        if (this.mc.level.getBlockState(pos).getDestroySpeed(this.mc.level, pos) == 0) {
-            this.mc.gameMode.startDestroyBlock(pos, Direction.UP);
-            return false;
-        }
-
+        this.state = this.mc.level.getBlockState(this.pos);
         // Find best tool in inventory
-        int bestSlotId = getBestItemSlotIdToMineBlock(this.mc, pos);
+        int bestSlotId = getBestItemSlotIdToMineBlock();
 
         if (bestSlotId != -1) {
-            PrinterInventoryUtils.survivalSwap(mc, mc.player, bestSlotId);
+            PrinterInventoryUtils.survivalSwap(this.mc, this.mc.player, bestSlotId);
         }
 
         // Check if can break instantly with this tool
-        BlockState blockState = this.mc.level.getBlockState(pos);
-        if (blockState.getDestroyProgress(this.mc.player, this.mc.player.level(), pos) >= 1.0F) {
+        if (this.state.getDestroyProgress(this.mc.player, this.mc.player.level(), this.pos) >= 1.0F) {
             this.mc.gameMode.startDestroyBlock(pos, Direction.UP);
-            return false;
         }
-
-        return true;
     }
 
-    /**
-     * Whether there is currently a valid, in-range, still-unbroken target to keep
-     * breaking. Pure query - does not cancel or otherwise mutate breaking state;
-     * callers are responsible for calling {@link #cancelBreaking()} when this
-     * returns false.
-     */
-    public boolean isBreakingBlock() {
-        if (this.pos == null || this.mc.level == null || this.mc.player == null) {
-            return false;
+    public boolean validateBreakingTarget() {
+        boolean ret = true;
+        if (this.pos == null) {
+            ret = false;
         }
 
-        if (!isBreakerAllowed()) {
-            return false;
+        if (ret) {
+            if (!isBreakerAllowed()) {
+                ret = false;
+            }
         }
 
-        double eyeDistanceSquared = this.mc.player.getEyePosition().distanceToSqr(Vec3.atCenterOf(this.pos));
-        double maxReachSquared = Mth.square(Configs.PRINTING_RANGE.getDoubleValue());
-        if (eyeDistanceSquared > maxReachSquared) {
+        if (ret) {
+            double eyeDistanceSquared = mc.player.getEyePosition().distanceToSqr(Vec3.atCenterOf(this.pos));
+            double maxReachSquared = Mth.square(Configs.PRINTING_RANGE.getDoubleValue());
+            if (eyeDistanceSquared > maxReachSquared) {
+                ret = false;
+            }
+        }
+
+        if (ret) {
+            BlockState newState = this.mc.level.getBlockState(this.pos);
+            if (newState.isAir() || newState.canBeReplaced() || !newState.equals(this.state)) ret = false;
+        }
+        if (!ret) {
             cancelBreaking();
-            return false;
         }
 
-        BlockState state = this.mc.level.getBlockState(pos);
-        return !state.isAir() && !state.canBeReplaced();
+        return ret;
     }
 
-    /**
-     * Cancel the current breaking operation.
-     * Called when print mode is disabled, the target is out of range, already
-     * broken, or the tick handler otherwise stops breaking it.
-     */
     public void cancelBreaking() {
-        if (this.mc.gameMode != null && pos != null) {
+        if (this.pos != null) {
             this.pos = null;
+            this.state = null;
             //this.mc.gameMode.stopDestroyBlock();
         }
     }
@@ -107,11 +102,10 @@ public class Breaker implements IClientTickHandler {
         return option == BreakerOption.AUTO || Hotkeys.EASY_PLACE_ACTIVATION.getKeybind().isPressed();
     }
 
-    public static int getBestItemSlotIdToMineBlock(Minecraft mc, BlockPos blockToMine) {
+    public int getBestItemSlotIdToMineBlock() {
         int bestSlot = -1;
         float bestSpeed = 0;
-        BlockState state = mc.level.getBlockState(blockToMine);
-        return getFastestToolSlot(mc, bestSlot, bestSpeed, state);
+        return getFastestToolSlot(this.mc, bestSlot, bestSpeed, this.state);
     }
 
     private static int getFastestToolSlot(Minecraft mc, int bestSlot, float bestSpeed, BlockState state) {
@@ -202,7 +196,7 @@ public class Breaker implements IClientTickHandler {
         if (preference == BreakPreference.DEFAULT) {
             return true;
         }
-        if (stack.isEmpty() || mc.level == null) {
+        if (stack.isEmpty()) {
             return false;
         }
 
@@ -220,7 +214,7 @@ public class Breaker implements IClientTickHandler {
     }
 
     public static float getBlockBreakingSpeed(BlockState block, Minecraft mc, int slotId) {
-        if (slotId < 0 || slotId >= 36 || mc.player == null) {
+        if (slotId < 0 || slotId >= 36) {
             return 0;
         }
 
@@ -239,25 +233,11 @@ public class Breaker implements IClientTickHandler {
         return f;
     }
 
-    @Override
-    public void onClientTick(Minecraft minecraft) {
-        if (this.mc.player == null || this.mc.level == null || this.mc.gameMode == null) {
-            cancelBreaking();
+    public void onClientTick() {
+        if (!validateBreakingTarget()) {
             return;
         }
-        if (!isBreakingBlock()) {
-            cancelBreaking();
-            return;
-        }
-
-//        if (this.mc.gameMode.continueDestroyBlock(pos, Direction.UP)) {
-//            //this.mc.player.swing(InteractionHand.MAIN_HAND);
-//        }
-
-        // Check if the block broke as a result of this tick's progress
-        BlockState state = this.mc.level.getBlockState(pos);
-        if (state.isAir() || state.canBeReplaced()) {
-            cancelBreaking();
-        }
+        this.mc.gameMode.continueDestroyBlock(pos, Direction.UP);//this.mc.player.swing(InteractionHand.MAIN_HAND);
+//        validateBreakingTarget(); // printer will validate it very soon
     }
 }

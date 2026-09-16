@@ -304,9 +304,8 @@ public final class BedrockMinerCompact implements IClientTickHandler {
                 task1.litematica_printer$getBlock().equals(block);
     }
 
-    @Override
     public void onClientTick(Minecraft mc) {
-        if (mc.player == null || mc.level == null || mc.gameMode == null || mc.getConnection() == null || !bedrockMinerAvailable) {
+        if (!bedrockMinerAvailable) {
             return;
         }
         if (!Configs.BREAKER_USE_BEDROCK_MINER.getBooleanValue() || !BreakBlockGuide.isBreakerAllowed()) {

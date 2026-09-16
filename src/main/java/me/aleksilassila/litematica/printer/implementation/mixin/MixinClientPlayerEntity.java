@@ -49,7 +49,7 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
             didCheckForUpdates = true;
 //            checkForUpdates();
         }
-
+        if (clientPlayer.gameMode() == null || clientPlayer.level() == null) return;
         if (LitematicaMixinMod.printer == null || LitematicaMixinMod.printer.player != clientPlayer) {
             Printer.printDebug("Initializing printer, player: {}, client: {}", clientPlayer, minecraft);
             LitematicaMixinMod.printer = new Printer(minecraft, clientPlayer);
@@ -57,6 +57,7 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
         }
         LitematicaMixinMod.bedrockMinerCompact.onClientTick(minecraft);
         // Dirty optimization
+        LitematicaMixinMod.breaker.onClientTick();
         for (int i = 0; i < 10; i++) {
             LitematicaMixinMod.printer.onGameTick();
         }
@@ -107,27 +108,5 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
         }
 
         return Optional.empty();
-    }
-
-    @Override
-    public float getXRot() {
-        if(InteractAction.useItemOnCallByPrinter) {
-            PrepareAction lookAction = LitematicaMixinMod.printer.actionHandler.lookAction;
-            if (lookAction != null && lookAction.modifyPitch) {
-                return lookAction.pitch;
-            }
-        }
-        return super.getXRot();
-    }
-
-    @Override
-    public float getYRot() {
-        if(InteractAction.useItemOnCallByPrinter) {
-            PrepareAction lookAction = LitematicaMixinMod.printer.actionHandler.lookAction;
-            if (lookAction != null && lookAction.modifyYaw) {
-                return lookAction.yaw;
-            }
-        }
-        return super.getYRot();
     }
 }
