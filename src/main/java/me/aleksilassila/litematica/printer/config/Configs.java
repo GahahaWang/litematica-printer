@@ -54,6 +54,7 @@ public class Configs implements IConfigHandler {
     public static final ConfigBoolean SUPPRESS_PUSH_LIMIT = new ConfigBoolean("suppressPushLimitPistons", true).apply(PRINTER_KEY);
     public static final ConfigBoolean AVOID_CHECK_ONLY_PISTONS = new ConfigBoolean("avoidCheckOnlyPistons", true).apply(PRINTER_KEY);
     public static final ConfigBoolean ROTATE = new ConfigBoolean("rotate", true).apply(PRINTER_KEY);
+    public static final ConfigBoolean USE_OFFHAND = new ConfigBoolean("useOffhand", false).apply(PRINTER_KEY);
 
     // HUD configs
     public static final ConfigBoolean PRINTER_ON_HUD_ENABLED = new ConfigBoolean("printerOnHudEnabled", true).apply(PRINTER_KEY);
@@ -96,6 +97,7 @@ public class Configs implements IConfigHandler {
             FALLING_BLOCK_PRINT_IN_AIR,
             PRINTER_CACHE_MS,
             ROTATE,
+            USE_OFFHAND,
             PRINTER_ON_HUD_ENABLED,
             PRINTER_ON_HUD_X,
             PRINTER_ON_HUD_Y,

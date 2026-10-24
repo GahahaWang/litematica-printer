@@ -16,6 +16,7 @@ public class PrinterPlacementContext extends BlockPlaceContext
     public final boolean shouldSneak;
     public final BlockHitResult hitResult;
     public final int requiredItemSlot;
+    public InteractionHand interactionHand = InteractionHand.MAIN_HAND;
 
     public PrinterPlacementContext(Player player, BlockHitResult hitResult, ItemStack requiredItem,
                                    int requiredItemSlot)
@@ -67,6 +68,7 @@ public class PrinterPlacementContext extends BlockPlaceContext
         return "PrinterPlacementContext{" +
                 "lookDirection=" + lookDirection +
                 ", requiresSneaking=" + shouldSneak +
+                ", hand=" + interactionHand +
                 ", blockPos=" + hitResult.getBlockPos() +
                 ", side=" + hitResult.getDirection() +
                 // ", hitVec=" + hitResult +

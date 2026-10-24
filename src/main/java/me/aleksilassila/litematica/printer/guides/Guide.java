@@ -2,6 +2,7 @@ package me.aleksilassila.litematica.printer.guides;
 
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.actions.Action;
+import me.aleksilassila.litematica.printer.utils.PrinterInventoryUtils;
 import me.aleksilassila.litematica.printer.implementation.BlockHelperImpl;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -29,19 +30,37 @@ abstract public class Guide extends BlockHelperImpl {
         return getRequiredItemStackSlot(player) != -1;
     }
 
+    /**
+     * Finds a slot holding {@code itemStack}, preferring the main hand, then the offhand
+     * (when usable), so no swap is needed if either hand already has it.
+     */
     protected int getSlotWithItem(LocalPlayer player, ItemStack itemStack) {
         Inventory inventory = player.getInventory();
 
+        int selected = inventory.getSelectedSlot();
+        if (isMatchingItem(inventory.getNonEquipmentItems().get(selected), itemStack)) {
+            return selected;
+        }
+
+        if (!itemStack.isEmpty() && PrinterInventoryUtils.canUseOffhand(player)
+                && isMatchingItem(player.getOffhandItem(), itemStack)) {
+            return Inventory.SLOT_OFFHAND;
+        }
+
         for (int i = 0; i < inventory.getNonEquipmentItems().size(); ++i) {
-            if (itemStack.isEmpty() && inventory.getNonEquipmentItems().get(i).is(itemStack.getItem())) {
-                return i;
-            }
-            if (!inventory.getNonEquipmentItems().get(i).isEmpty() && ItemStack.isSameItem(inventory.getNonEquipmentItems().get(i), itemStack)) {
+            if (isMatchingItem(inventory.getNonEquipmentItems().get(i), itemStack)) {
                 return i;
             }
         }
 
         return -1;
+    }
+
+    private static boolean isMatchingItem(ItemStack stack, ItemStack required) {
+        if (required.isEmpty()) {
+            return stack.is(required.getItem());
+        }
+        return !stack.isEmpty() && ItemStack.isSameItem(stack, required);
     }
 
     protected int getRequiredItemStackSlot(LocalPlayer player) {

@@ -30,7 +30,7 @@ abstract public class InteractAction extends Action {
                 player.setYRot(lookAction.yaw);
             }
         }
-        interact(client, player, InteractionHand.MAIN_HAND, context.hitResult);
+        interact(client, player, context.interactionHand, context.hitResult);
         player.setXRot(xRot);
         player.setYRot(yRot);
 

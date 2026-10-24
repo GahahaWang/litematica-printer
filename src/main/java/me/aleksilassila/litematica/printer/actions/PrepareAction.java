@@ -9,7 +9,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
-import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.player.Inventory;
@@ -69,11 +68,9 @@ public class PrepareAction extends Action {
                 this.addPickBlock(inventory, itemStack);
                 client.gameMode.handleCreativeModeItemAdd(player.getItemInHand(InteractionHand.MAIN_HAND), 36 + inventory.getSelectedSlot());
             } else if (slot != -1) {
-                if (Inventory.isHotbarSlot(slot)) {
-                    inventory.setSelectedSlot(slot);
-                    client.getConnection().send(new ServerboundSetCarriedItemPacket(inventory.getSelectedSlot()));
-                } else {
-                    PrinterInventoryUtils.setPickedItemToHand(slot, itemStack, client);
+                InteractionHand hand = PrinterInventoryUtils.setPickedItemToHand(slot, itemStack, client);
+                if (hand != null) {
+                    context.interactionHand = hand;
                 }
             }
         }

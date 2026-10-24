@@ -2,14 +2,19 @@ package me.aleksilassila.litematica.printer.utils;
 
 import fi.dy.masa.malilib.gui.Message;
 import fi.dy.masa.malilib.util.InfoUtils;
+import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.mixin.InventoryUtilsAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 public class PrinterInventoryUtils {
 
@@ -19,10 +24,11 @@ public class PrinterInventoryUtils {
     }
 
     public static void resetSlotRoundRobin() {
-        slotRoundRobin = new int[Inventory.SELECTION_SIZE];
-        for (int i = 0; i < slotRoundRobin.length; i++) {
+        slotRoundRobin = new int[Inventory.SELECTION_SIZE + 1];
+        for (int i = 0; i < Inventory.SELECTION_SIZE; i++) {
             slotRoundRobin[i] = i;
         }
+        slotRoundRobin[Inventory.SELECTION_SIZE] = Inventory.SLOT_OFFHAND;
     }
 
     private static void moveIndexToEnd(int index) {
@@ -54,50 +60,87 @@ public class PrinterInventoryUtils {
         }
     }
 
-    // Creative things are already done in PrepareAction, only need to do survival things
-    public static void setPickedItemToHand(int sourceSlot, ItemStack stack, Minecraft mc) {
-        if (mc.player == null) return;
-        Player player = mc.player;
-        Inventory inventory = player.getInventory();
-
-        int hotbarSlot = sourceSlot;
-        if (Inventory.isHotbarSlot(sourceSlot)) {
-            inventory.setSelectedSlot(sourceSlot);
-        }
-        else {
-            if (InventoryUtilsAccessor.getPickBlockableSlots().isEmpty()) {
-                InfoUtils.showGuiOrInGameMessage(Message.MessageType.WARNING, "litematica.message.warn.pickblock.no_valid_slots_configured");
-                return;
-            }
-            if (sourceSlot == -1 || !Inventory.isHotbarSlot(sourceSlot)) {
-                hotbarSlot = InventoryUtilsAccessor.getEmptyPickBlockableHotbarSlot(inventory);
-            }
-
-            if (hotbarSlot == -1) {
-                hotbarSlot = getPickBlockTargetSlot(player);
-            }
-
-            if (hotbarSlot != -1) {
-                inventory.setSelectedSlot(hotbarSlot);
-                mc.gameMode.handleContainerInput(player.inventoryMenu.containerId, sourceSlot, hotbarSlot, ContainerInput.SWAP, mc.player);
-            }
-            else {
-                InfoUtils.showGuiOrInGameMessage(Message.MessageType.WARNING, "litematica.message.warn.pickblock.no_suitable_slot_found");
-                return;
-            }
-        }
-        mc.getConnection().send(new ServerboundSetCarriedItemPacket(inventory.getSelectedSlot()));
+    /**
+     * Whether the offhand may hold picked items: enabled in config, survival only,
+     * and never while the offhand holds a totem.
+     */
+    public static boolean canUseOffhand(Player player) {
+        return Configs.USE_OFFHAND.getBooleanValue()
+                && !player.getAbilities().instabuild
+                && !player.getOffhandItem().has(DataComponents.DEATH_PROTECTION);
     }
 
-    private static int getPickBlockTargetSlot(Player player) {
-        if (InventoryUtilsAccessor.getPickBlockableSlots().isEmpty() || player == null) {
-            return -1;
+    /**
+     * Swaps the item in inventory {@code slot} into the offhand. No-op if it is already there.
+     */
+    private static void swapToOffhand(Minecraft mc, Player player, int slot) {
+        if (slot == Inventory.SLOT_OFFHAND) {
+            return;
         }
-        int slotNum;
+        // Inventory hotbar 0-8 maps to InventoryMenu slots 36-44; main inventory 9-35 maps 1:1.
+        int menuSlot = Inventory.isHotbarSlot(slot) ? InventoryMenu.USE_ROW_SLOT_START + slot : slot;
+        mc.gameMode.handleContainerInput(player.inventoryMenu.containerId, menuSlot, Inventory.SLOT_OFFHAND, ContainerInput.SWAP, player);
+    }
+
+    /**
+     * Moves the item in {@code sourceSlot} into a hand. Creative things are already done in PrepareAction,
+     * only survival is handled here.
+     *
+     * @return the hand now holding the item, or {@code null} if no suitable slot was found
+     */
+    public static @Nullable InteractionHand setPickedItemToHand(int sourceSlot, ItemStack stack, Minecraft mc) {
+        if (mc.player == null || mc.gameMode == null) return null;
+        Player player = mc.player;
+        Inventory inventory = player.getInventory();
+        boolean offhandAllowed = canUseOffhand(player);
+
+        if (sourceSlot == inventory.getSelectedSlot()) {
+            return InteractionHand.MAIN_HAND;
+        }
+        if (sourceSlot == Inventory.SLOT_OFFHAND) {
+            return offhandAllowed ? InteractionHand.OFF_HAND : null;
+        }
+        if (Inventory.isHotbarSlot(sourceSlot)) {
+            inventory.setSelectedSlot(sourceSlot);
+            mc.getConnection().send(new ServerboundSetCarriedItemPacket(sourceSlot));
+            return InteractionHand.MAIN_HAND;
+        }
+
+        boolean hotbarAllowed = !InventoryUtilsAccessor.getPickBlockableSlots().isEmpty();
+        if (!hotbarAllowed && !offhandAllowed) {
+            InfoUtils.showGuiOrInGameMessage(Message.MessageType.WARNING, "litematica.message.warn.pickblock.no_valid_slots_configured");
+            return null;
+        }
+
+        int targetSlot = hotbarAllowed ? InventoryUtilsAccessor.getEmptyPickBlockableHotbarSlot(inventory) : -1;
+        if (targetSlot == -1 && offhandAllowed && player.getOffhandItem().isEmpty()) {
+            targetSlot = Inventory.SLOT_OFFHAND;
+        }
+        if (targetSlot == -1) {
+            targetSlot = getPickBlockTargetSlot(player, hotbarAllowed, offhandAllowed);
+        }
+        if (targetSlot == -1) {
+            InfoUtils.showGuiOrInGameMessage(Message.MessageType.WARNING, "litematica.message.warn.pickblock.no_suitable_slot_found");
+            return null;
+        }
+
+        if (targetSlot == Inventory.SLOT_OFFHAND) {
+            swapToOffhand(mc, player, sourceSlot);
+            return InteractionHand.OFF_HAND;
+        }
+        inventory.setSelectedSlot(targetSlot);
+        mc.gameMode.handleContainerInput(player.inventoryMenu.containerId, sourceSlot, targetSlot, ContainerInput.SWAP, player);
+        mc.getConnection().send(new ServerboundSetCarriedItemPacket(targetSlot));
+        return InteractionHand.MAIN_HAND;
+    }
+
+    private static int getPickBlockTargetSlot(Player player, boolean hotbarAllowed, boolean offhandAllowed) {
         for (int index = 0; index < slotRoundRobin.length; ++index) {
-            slotNum = slotRoundRobin[index];
-            if (InventoryUtilsAccessor.canPickToSlot(player.getInventory(), slotNum))
-            {
+            int slotNum = slotRoundRobin[index];
+            boolean canPick = slotNum == Inventory.SLOT_OFFHAND
+                    ? offhandAllowed
+                    : hotbarAllowed && InventoryUtilsAccessor.canPickToSlot(player.getInventory(), slotNum);
+            if (canPick) {
                 moveIndexToEnd(index);
                 return slotNum;
             }
