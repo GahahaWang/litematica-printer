@@ -32,6 +32,11 @@ public class Configs implements IConfigHandler {
     public static final ConfigBoolean REPLACE_FLUIDS_SOURCE_BLOCKS = new ConfigBoolean("replaceFluidSourceBlocks", true).apply(PRINTER_KEY);
     public static final ConfigBoolean CLEAR_FLUID = new ConfigBoolean("clearFluid", false).apply(PRINTER_KEY);
     public static final ConfigStringList BLOCKS_CLEAR_FLUID = new ConfigStringList("blocksClearFluid", ImmutableList.of("minecraft:cobblestone")).apply(PRINTER_KEY);
+    public static final ConfigBoolean PLACE_FLUIDS = new ConfigBoolean("placeFluids", false).apply(PRINTER_KEY);
+    public static final ConfigBoolean FLUID_MINIMIZE_BUCKETS = new ConfigBoolean("fluidMinimizeBuckets", false).apply(PRINTER_KEY);
+    public static final ConfigInteger FLUID_MINIMIZE_MAX_BLOCKS = new ConfigInteger("fluidMinimizeMaxBlocks", 8192, 1, 262144).apply(PRINTER_KEY);
+    public static final ConfigBoolean FLUID_MINIMIZE_RENDER = new ConfigBoolean("fluidMinimizeRender", true).apply(PRINTER_KEY);
+    public static final ConfigColor FLUID_MINIMIZE_RENDER_COLOR = new ConfigColor("fluidMinimizeRenderColor", "#FF00C8FF").apply(PRINTER_KEY);
     public static final ConfigBoolean STRIP_LOGS = new ConfigBoolean("stripLogs", true).apply(PRINTER_KEY);
     public static final ConfigBoolean INTERACT_BLOCKS = new ConfigBoolean("interactBlocks", true).apply(PRINTER_KEY);
     public static final ConfigBoolean BREAK_BLOCKS = new ConfigBoolean("breakBlocks", true).apply(PRINTER_KEY);
@@ -46,6 +51,8 @@ public class Configs implements IConfigHandler {
     public static final ConfigBoolean BREAKER_USE_BEDROCK_MINER = new ConfigBoolean("breakerUseBedrockMiner", false).apply(PRINTER_KEY);
     public static final ConfigBoolean PRINT_IN_AIR = new ConfigBoolean("printInAir", false).apply(PRINTER_KEY);
     public static final ConfigBoolean FALLING_BLOCK_PRINT_IN_AIR = new ConfigBoolean("fallingBlockPrintInAir", false).apply(PRINTER_KEY);
+    public static final ConfigBoolean FALLING_BLOCK_SUPPORT = new ConfigBoolean("fallingBlockSupport", false).apply(PRINTER_KEY);
+    public static final ConfigStringList FALLING_BLOCK_SUPPORT_BLOCKS = new ConfigStringList("fallingBlockSupportBlocks", ImmutableList.of("minecraft:cobblestone")).apply(PRINTER_KEY);
     public static final ConfigInteger PRINTER_CACHE_MS = new ConfigInteger("printerCacheMs", 200, 0, 5000).apply(PRINTER_KEY);
 
     // Smart Redstone configs
@@ -81,6 +88,11 @@ public class Configs implements IConfigHandler {
             REPLACE_FLUIDS_SOURCE_BLOCKS,
             CLEAR_FLUID,
             BLOCKS_CLEAR_FLUID,
+            PLACE_FLUIDS,
+            FLUID_MINIMIZE_BUCKETS,
+            FLUID_MINIMIZE_MAX_BLOCKS,
+            FLUID_MINIMIZE_RENDER,
+            FLUID_MINIMIZE_RENDER_COLOR,
             STRIP_LOGS,
             INTERACT_BLOCKS,
             BREAK_BLOCKS,
@@ -95,6 +107,8 @@ public class Configs implements IConfigHandler {
             BREAKER_USE_BEDROCK_MINER,
             PRINT_IN_AIR,
             FALLING_BLOCK_PRINT_IN_AIR,
+            FALLING_BLOCK_SUPPORT,
+            FALLING_BLOCK_SUPPORT_BLOCKS,
             PRINTER_CACHE_MS,
             ROTATE,
             USE_OFFHAND,

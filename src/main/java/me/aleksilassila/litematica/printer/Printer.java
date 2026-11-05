@@ -14,11 +14,13 @@ import me.aleksilassila.litematica.printer.guides.Guides;
 import me.aleksilassila.litematica.printer.guides.interaction.BreakBlockGuide;
 import me.aleksilassila.litematica.printer.utils.BedrockMinerCompact;
 import me.aleksilassila.litematica.printer.utils.PositionCache;
+import me.aleksilassila.litematica.printer.utils.WaterFillPlanner;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -37,6 +39,7 @@ public class Printer {
     public final ActionHandler actionHandler;
     private final Guides interactionGuides = new Guides();
     private final PositionCache positionCache = new PositionCache();
+    public final WaterFillPlanner waterFillPlanner = new WaterFillPlanner();
 
     public Printer(@Nonnull Minecraft client, @Nonnull LocalPlayer player) {
         this.player = player;
@@ -79,13 +82,17 @@ public class Printer {
             if (ts.equals(cs) || cs.is(Blocks.PISTON_HEAD) || cs.is(Blocks.MOVING_PISTON) || ts.is(Blocks.PISTON_HEAD) || ts.is(Blocks.MOVING_PISTON)) {
                 continue;
             }
-            if (!cs.canBeReplaced() && !cs.is(ts.getBlock()) && !Configs.BREAK_BLOCKS.getBooleanValue()) {
+            // an empty flower pot is filled by FlowerPotFillGuide, it does not need breaking
+            boolean fillFlowerPot = cs.is(Blocks.FLOWER_POT) && ts.getBlock() instanceof FlowerPotBlock;
+            if (!cs.canBeReplaced() && !cs.is(ts.getBlock()) && !fillFlowerPot && !Configs.BREAK_BLOCKS.getBooleanValue()) {
                 continue;
             }
             if (cs.canBeReplaced() && !state.world.isUnobstructed(ts, position, CollisionContext.empty())) {
                 continue;
             }
-            if (ts.getBlock() instanceof LiquidBlock) {
+            // only source blocks can be placed (with a bucket), flowing fluid comes from them
+            if (ts.getBlock() instanceof LiquidBlock
+                    && !(Configs.PLACE_FLUIDS.getBooleanValue() && ts.getFluidState().isSource())) {
                 continue;
             }
             Guide[] guides;

@@ -7,8 +7,6 @@ import fi.dy.masa.litematica.world.WorldSchematic;
 import me.aleksilassila.litematica.printer.LitematicaMixinMod;
 import me.aleksilassila.litematica.printer.Printer;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
-import me.aleksilassila.litematica.printer.actions.InteractAction;
-import me.aleksilassila.litematica.printer.actions.PrepareAction;
 import me.aleksilassila.litematica.printer.utils.PrinterInventoryUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -58,6 +56,7 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
         LitematicaMixinMod.bedrockMinerCompact.onClientTick(minecraft);
         // Dirty optimization
         LitematicaMixinMod.breaker.onClientTick();
+        LitematicaMixinMod.printer.waterFillPlanner.onClientTick();
         for (int i = 0; i < 10; i++) {
             LitematicaMixinMod.printer.onGameTick();
         }

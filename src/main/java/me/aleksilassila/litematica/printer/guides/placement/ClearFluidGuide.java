@@ -56,6 +56,10 @@ public class ClearFluidGuide extends GeneralPlacementGuide {
         if(!targetState.isAir() && !targetState.hasProperty(BlockStateProperties.WATERLOGGED)) {
             return false;
         }
+        // the target wants the water: placing the block into it waterlogs it
+        if (getProperty(targetState, BlockStateProperties.WATERLOGGED).orElse(false)) {
+            return false;
+        }
 
         PrinterPlacementContext ctx = getPlacementContext(player);
         if (ctx == null || !ctx.canPlace()) {

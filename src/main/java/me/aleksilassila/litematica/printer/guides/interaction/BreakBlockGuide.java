@@ -10,6 +10,7 @@ import me.aleksilassila.litematica.printer.config.BreakerOption;
 import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.guides.Guide;
 import me.aleksilassila.litematica.printer.guides.placement.ClearFluidGuide;
+import me.aleksilassila.litematica.printer.guides.placement.FallingBlockSupportGuide;
 import me.aleksilassila.litematica.printer.utils.BreakBlockListRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -72,7 +73,13 @@ public class BreakBlockGuide extends Guide {
             return false;
         }
 
-        if (Configs.CLEAR_FLUID.getBooleanValue() && targetState.canBeReplaced() && ClearFluidGuide.wouldReformSource(state)) {
+        if (Configs.CLEAR_FLUID.getBooleanValue() && targetState.canBeReplaced() && targetState.getFluidState().isEmpty()
+                && ClearFluidGuide.wouldReformSource(state)) {
+            return false;
+        }
+
+        // keep the block holding up a falling block
+        if (Configs.FALLING_BLOCK_SUPPORT.getBooleanValue() && FallingBlockSupportGuide.isSupportPosition(state)) {
             return false;
         }
 

@@ -33,6 +33,7 @@ public class PropertySpecificGuesserGuide extends GuesserGuide {
             SnowLayerBlock.LAYERS,
             SeaPickleBlock.PICKLES,
             CandleBlock.CANDLES,
+            FlowerBedBlock.AMOUNT,
             EndPortalFrameBlock.HAS_EYE,
             BlockStateProperties.LIT,
             LeavesBlock.DISTANCE,

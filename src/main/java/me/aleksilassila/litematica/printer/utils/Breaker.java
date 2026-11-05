@@ -108,6 +108,17 @@ public class Breaker{
         return getFastestToolSlot(this.mc, bestSlot, bestSpeed, this.state);
     }
 
+    /**
+     * The item the breaker would mine {@code state} with: the slot it swaps to, or the held item when it keeps it.
+     */
+    public static ItemStack getMiningTool(Minecraft mc, BlockState state) {
+        if (mc.player == null) {
+            return ItemStack.EMPTY;
+        }
+        int slot = getFastestToolSlot(mc, -1, 0, state);
+        return slot >= 0 ? mc.player.getInventory().getItem(slot) : mc.player.getMainHandItem();
+    }
+
     private static int getFastestToolSlot(Minecraft mc, int bestSlot, float bestSpeed, BlockState state) {
         if (mc.player == null) {
             return bestSlot;

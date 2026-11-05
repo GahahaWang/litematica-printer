@@ -1,13 +1,13 @@
 package me.aleksilassila.litematica.printer;
 
 import fi.dy.masa.malilib.event.InitializationHandler;
-import fi.dy.masa.malilib.event.TickHandler;
 import me.aleksilassila.litematica.printer.command.PrinterCommand;
 import me.aleksilassila.litematica.printer.event.KeyCallbacks;
 import me.aleksilassila.litematica.printer.event.PrinterInitHandler;
 import me.aleksilassila.litematica.printer.gui.PrinterOnHud;
 import me.aleksilassila.litematica.printer.utils.BedrockMinerCompact;
 import me.aleksilassila.litematica.printer.utils.Breaker;
+import me.aleksilassila.litematica.printer.utils.FluidPredictCompact;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.Minecraft;
 
@@ -23,6 +23,7 @@ public class LitematicaMixinMod implements ModInitializer {
         breaker = new Breaker(Minecraft.getInstance());
         bedrockMinerCompact = new BedrockMinerCompact();
         BedrockMinerCompact.init();
+        FluidPredictCompact.init();
 
         KeyCallbacks.init(Minecraft.getInstance());
         PrinterOnHud.registerHud();

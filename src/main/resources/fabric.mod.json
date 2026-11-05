@@ -31,6 +31,9 @@
   "recommends": {
     "bedrockminer": "*"
   },
+  "suggests": {
+    "fluidpredict": "*"
+  },
   "breaks": {
     "malilib": "<0.29.0-",
     "litematica": "<0.28.0-"

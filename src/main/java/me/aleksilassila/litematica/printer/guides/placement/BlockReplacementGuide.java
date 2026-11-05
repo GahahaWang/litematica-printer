@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.CandleBlock;
+import net.minecraft.world.level.block.FlowerBedBlock;
 import net.minecraft.world.level.block.SeaPickleBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
@@ -27,6 +28,7 @@ public class BlockReplacementGuide extends PlacementGuide {
         increasingProperties.put(SnowLayerBlock.LAYERS, null);
         increasingProperties.put(SeaPickleBlock.PICKLES, null);
         increasingProperties.put(CandleBlock.CANDLES, null);
+        increasingProperties.put(FlowerBedBlock.AMOUNT, null);
     }
 
     private Integer currentLevel = null;
@@ -82,18 +84,19 @@ public class BlockReplacementGuide extends PlacementGuide {
 
         if (targetSlabType == SlabType.DOUBLE && currentSlabType != SlabType.DOUBLE) {
             if (currentState.getBlock() != targetState.getBlock()) return false;
-            PrinterPlacementContext ctx = getPlacementContext(player);
-            if (ctx == null || !ctx.canPlace()) return false;
-            BlockState resultState = getRequiredItemAsBlock(player)
-                    .orElse(targetState.getBlock())
-                    .getStateForPlacement(ctx);
-            return resultState != null && resultState.canSurvive(state.world, state.blockPos);
+        } else {
+            if (currentLevel == null || targetLevel == null || increasingProperty == null) return false;
+            if (!statesEqualIgnoreProperties(currentState, targetState, CandleBlock.LIT, increasingProperty)) return false;
+            if (currentLevel >= targetLevel) return false;
         }
 
-        if (currentLevel == null || targetLevel == null || increasingProperty == null) return false;
-        if (!statesEqualIgnoreProperties(currentState, targetState, CandleBlock.LIT, increasingProperty)) return false;
-        if (currentLevel >= targetLevel) return false;
-
-        return super.canExecute(player);
+        // Not via super: the current block (candle, sea pickle, flower bed...) is only replaceable
+        // in the placement context, which PlacementGuide#canExecute's canBeReplaced() check rejects
+        PrinterPlacementContext ctx = getPlacementContext(player);
+        if (ctx == null || !ctx.canPlace()) return false;
+        BlockState resultState = getRequiredItemAsBlock(player)
+                .orElse(targetState.getBlock())
+                .getStateForPlacement(ctx);
+        return resultState != null && resultState.canSurvive(state.world, state.blockPos);
     }
 }

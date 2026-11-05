@@ -24,6 +24,8 @@ public class Guides {
         registerGuide(BedrockMinerGuide.class);
         registerGuide(BreakBlockGuide.class);
         registerGuide(ClearFluidGuide.class);
+        registerGuide(FluidPlacementGuide.class, LiquidBlock.class);
+        registerGuide(WaterloggingGuide.class);
 
         // Smart redstone checks (must be early in the list to skip blocks before other guides)
         registerGuide(SmartRedstoneGuide.class, PoweredBlock.class, TntBlock.class, PistonBaseBlock.class, ObserverBlock.class);
@@ -46,13 +48,14 @@ public class Guides {
                 PointedDripstoneBlock.class,
                 CrossCollisionBlock.class, DoorBlock.class, TrapDoorBlock.class, FenceGateBlock.class,
                 ChestBlock.class,
-                SnowLayerBlock.class, SeaPickleBlock.class, CandleBlock.class, EndPortalFrameBlock.class,
+                SnowLayerBlock.class, SeaPickleBlock.class, CandleBlock.class, FlowerBedBlock.class, EndPortalFrameBlock.class,
                 NoteBlock.class, CampfireBlock.class, PoweredRailBlock.class, LeavesBlock.class,
                 TripWireHookBlock.class, WallBlock.class,
                 ObserverBlock.class, PistonBaseBlock.class, ComposterBlock.class, HopperBlock.class, DispenserBlock.class,
                 CopperBulbBlock.class, RedstoneLampBlock.class, DaylightDetectorBlock.class,
                 ShelfBlock.class, JukeboxBlock.class, DecoratedPotBlock.class, SculkShriekerBlock.class, SculkSensorBlock.class,
                 BedBlock.class, LecternBlock.class, HugeMushroomBlock.class);
+        registerGuide(FallingBlockSupportGuide.class, FallingBlock.class);
         registerGuide(FallingBlockGuide.class, FallingBlock.class);
         registerGuide(BlockIndifferentGuesserGuide.class, BambooStalkBlock.class, BigDripleafStemBlock.class,
                 BigDripleafBlock.class,
@@ -66,7 +69,7 @@ public class Guides {
                 LeverBlock.class,
                 RepeaterBlock.class, ComparatorBlock.class, NoteBlock.class);
         registerGuide(BlockReplacementGuide.class, SnowLayerBlock.class, SeaPickleBlock.class, CandleBlock.class,
-                SlabBlock.class);
+                FlowerBedBlock.class, SlabBlock.class);
         registerGuide(LogGuide.class);
         registerGuide(LogStrippingGuide.class);
         registerGuide(GuesserGuide.class);
