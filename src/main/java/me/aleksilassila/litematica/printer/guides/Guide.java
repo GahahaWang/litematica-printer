@@ -2,6 +2,7 @@ package me.aleksilassila.litematica.printer.guides;
 
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.actions.Action;
+import me.aleksilassila.litematica.printer.utils.Breaker;
 import me.aleksilassila.litematica.printer.utils.PrinterInventoryUtils;
 import me.aleksilassila.litematica.printer.implementation.BlockHelperImpl;
 import net.minecraft.client.player.LocalPlayer;
@@ -60,7 +61,8 @@ abstract public class Guide extends BlockHelperImpl {
         if (required.isEmpty()) {
             return stack.is(required.getItem());
         }
-        return !stack.isEmpty() && ItemStack.isSameItem(stack, required);
+        // a tool too worn to use counts as missing
+        return !stack.isEmpty() && ItemStack.isSameItem(stack, required) && !Breaker.isDurabilityTooLow(stack);
     }
 
     protected int getRequiredItemStackSlot(LocalPlayer player) {

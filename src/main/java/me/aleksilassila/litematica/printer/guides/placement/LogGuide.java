@@ -54,6 +54,11 @@ public class LogGuide extends GeneralPlacementGuide {
             return false;
         }
 
+        // the log is only placed to be stripped, without a usable axe a stripped log can still be placed directly
+        if (!new LogStrippingGuide(state).hasUsableAxe(player)) {
+            return false;
+        }
+
         return super.canExecute(player);
     }
 }

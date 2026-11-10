@@ -8,6 +8,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,16 +41,20 @@ public class LogStrippingGuide extends InteractionGuide {
         super(state);
     }
 
+    /**
+     * Whether stripping turns {@code current} into {@code target}, with or without a usable axe right now.
+     */
+    public static boolean stripsInto(BlockState current, BlockState target) {
+        return Configs.STRIP_LOGS.getBooleanValue() && STRIPPED_BLOCKS.get(current.getBlock()) == target.getBlock();
+    }
+
+    public boolean hasUsableAxe(LocalPlayer player) {
+        return playerHasRightItem(player);
+    }
+
     @Override
     public boolean canExecute(LocalPlayer player) {
-        if (!Configs.STRIP_LOGS.getBooleanValue())
-            return false;
-
-        if (!super.canExecute(player))
-            return false;
-
-        Block strippingResult = STRIPPED_BLOCKS.get(currentState.getBlock());
-        return strippingResult == targetState.getBlock();
+        return stripsInto(currentState, targetState) && super.canExecute(player);
     }
 
     @Override

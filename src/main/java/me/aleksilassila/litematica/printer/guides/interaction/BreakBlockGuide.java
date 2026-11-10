@@ -16,8 +16,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 import javax.annotation.Nonnull;
@@ -104,13 +106,7 @@ public class BreakBlockGuide extends Guide {
 
         NeedBreak:
         if (needsBreaking) {
-            // FlowerPotFillGuide
-            if (currentState.is(Blocks.FLOWER_POT) && targetState.getBlock() instanceof FlowerPotBlock){
-                needsBreaking = false;
-                break NeedBreak;
-            }
-            // LogStrippingGuide
-            if (new LogStrippingGuide(state).canExecute(player)) {
+            if (becomesTargetByUse(currentState, targetState)) {
                 needsBreaking = false;
                 break NeedBreak;
             }
@@ -122,6 +118,17 @@ public class BreakBlockGuide extends Guide {
         }
 
         return needsBreaking;
+    }
+
+    /**
+     * Blocks that become the target by using something on them, not by breaking them: an empty flower pot to fill, a log
+     * to strip, dirt to till. Without the item the block waits for it, breaking the log or dirt would only have it placed
+     * again.
+     */
+    public static boolean becomesTargetByUse(BlockState current, BlockState target) {
+        return current.is(Blocks.FLOWER_POT) && target.getBlock() instanceof FlowerPotBlock
+                || target.getBlock() instanceof FarmlandBlock && TillingGuide.isTillable(current)
+                || LogStrippingGuide.stripsInto(current, target);
     }
 
     public static boolean isBreakerAllowed() {

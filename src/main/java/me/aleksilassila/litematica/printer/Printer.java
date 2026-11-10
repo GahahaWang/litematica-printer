@@ -20,7 +20,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -82,9 +81,9 @@ public class Printer {
             if (ts.equals(cs) || cs.is(Blocks.PISTON_HEAD) || cs.is(Blocks.MOVING_PISTON) || ts.is(Blocks.PISTON_HEAD) || ts.is(Blocks.MOVING_PISTON)) {
                 continue;
             }
-            // an empty flower pot is filled by FlowerPotFillGuide, it does not need breaking
-            boolean fillFlowerPot = cs.is(Blocks.FLOWER_POT) && ts.getBlock() instanceof FlowerPotBlock;
-            if (!cs.canBeReplaced() && !cs.is(ts.getBlock()) && !fillFlowerPot && !Configs.BREAK_BLOCKS.getBooleanValue()) {
+            // without Break Blocks a wrong block can only stay, unless using something on it makes it the target
+            if (!Configs.BREAK_BLOCKS.getBooleanValue() && !cs.canBeReplaced() && !cs.is(ts.getBlock())
+                    && !BreakBlockGuide.becomesTargetByUse(cs, ts)) {
                 continue;
             }
             if (cs.canBeReplaced() && !state.world.isUnobstructed(ts, position, CollisionContext.empty())) {

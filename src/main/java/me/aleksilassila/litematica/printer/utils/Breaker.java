@@ -177,7 +177,7 @@ public class Breaker{
         return -1;
     }
 
-    private static boolean isDurabilityTooLow(ItemStack stack) {
+    public static boolean isDurabilityTooLow(ItemStack stack) {
         if (!Configs.TOOL_DURABILITY_PROTECTION.getBooleanValue() || !stack.isDamageableItem()) {
             return false;
         }

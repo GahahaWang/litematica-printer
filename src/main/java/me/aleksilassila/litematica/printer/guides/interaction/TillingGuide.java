@@ -6,6 +6,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +18,7 @@ public class TillingGuide extends InteractionGuide {
             Items.DIAMOND_HOE,
             Items.GOLDEN_HOE,
             Items.IRON_HOE,
+            Items.COPPER_HOE,
             Items.STONE_HOE,
             Items.WOODEN_HOE
     };
@@ -24,12 +27,17 @@ public class TillingGuide extends InteractionGuide {
         super(state);
     }
 
+    public static boolean isTillable(BlockState state) {
+        return Arrays.stream(FarmlandGuide.TILLABLE_BLOCKS).anyMatch(state::is);
+    }
+
     @Override
     public boolean canExecute(LocalPlayer player) {
-        if (!super.canExecute(player))
+        if (!super.canExecute(player) || !isTillable(currentState))
             return false;
 
-        return Arrays.stream(FarmlandGuide.TILLABLE_BLOCKS).anyMatch(b -> b == currentState.getBlock());
+        // HoeItem only tills with air above, except rooted dirt
+        return currentState.is(Blocks.ROOTED_DIRT) || state.world.getBlockState(state.blockPos.above()).isAir();
     }
 
     @Override
