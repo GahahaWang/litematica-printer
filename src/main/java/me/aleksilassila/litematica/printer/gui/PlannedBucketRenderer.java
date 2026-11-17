@@ -1,6 +1,6 @@
 package me.aleksilassila.litematica.printer.gui;
 
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import cc.gahaha.fastmultiversion.Mc;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
@@ -31,10 +31,28 @@ public class PlannedBucketRenderer implements IRenderer {
     private static final float LINE_WIDTH = 2.0f;
     private static final float SIDES_ALPHA = 0.25f;
     private static final double EXPAND = 0.002;
+    private static final Supplier<String> OUTLINES = () -> PrinterReference.MOD_ID + ":planned_buckets/outlines";
+    private static final Supplier<String> SIDES = () -> PrinterReference.MOD_ID + ":planned_buckets/sides";
 
+    // malilib's hook for Minecraft 26.1.2 and 26.2...
+    @Mc.Is("[26.1.2,26.3)")
     @Override
     public void onRenderWorldLast(RenderTarget fb, Matrix4fc modelViewMatrix, CameraRenderState cameraState, Frustum culling,
-                                  RenderBuffers buffers, GpuBufferSlice terrainFog, Vector4f fogColor, ProfilerFiller profiler) {
+                                  RenderBuffers buffers, com.mojang.blaze3d.buffers.GpuBufferSlice terrainFog, Vector4f fogColor,
+                                  ProfilerFiller profiler) {
+        render(profiler);
+    }
+
+    // ...and since 26.3: no model view matrix, and Minecraft's render API is in com.mojang.renderpearl.
+    @Mc.Is("[26.3,)")
+    @Override
+    public void onRenderWorldLast(RenderTarget fb, CameraRenderState cameraState, Frustum culling, RenderBuffers buffers,
+                                  com.mojang.renderpearl.api.buffers.GpuBufferSlice terrainFog, Vector4f fogColor,
+                                  ProfilerFiller profiler) {
+        render(profiler);
+    }
+
+    private void render(ProfilerFiller profiler) {
         if (!Configs.FLUID_MINIMIZE_BUCKETS.getBooleanValue() || !Configs.FLUID_MINIMIZE_RENDER.getBooleanValue()
                 || LitematicaMixinMod.printer == null) {
             return;
@@ -49,16 +67,14 @@ public class PlannedBucketRenderer implements IRenderer {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
         profiler.push("planned_buckets");
-        try (RenderContext ctx = new RenderContext(() -> PrinterReference.MOD_ID + ":planned_buckets/outlines",
-                MaLiLibPipelines.DEBUG_LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL, 0)) {
+        try (RenderContext ctx = outlines()) {
             BufferBuilder buffer = ctx.getBuilder();
             for (int i = 0; i < positions.size(); i++) {
                 RenderUtils.drawBlockBoundingBoxOutlinesBatchedLinesSimple(pos.set(positions.getLong(i)), color, EXPAND, LINE_WIDTH, buffer);
             }
             draw(ctx, buffer, true);
 
-            buffer = ctx.start(() -> PrinterReference.MOD_ID + ":planned_buckets/sides",
-                    MaLiLibPipelines.POSITION_COLOR_TRANSLUCENT_NO_DEPTH_NO_CULL, 0);
+            buffer = startSides(ctx);
             for (int i = 0; i < positions.size(); i++) {
                 pos.set(positions.getLong(i));
                 RenderUtils.renderAreaSidesBatched(pos, pos, sidesColor, EXPAND, buffer);
@@ -68,6 +84,32 @@ public class PlannedBucketRenderer implements IRenderer {
             Printer.logger.error("PlannedBucketRenderer: draw failed", e);
         }
         profiler.pop();
+    }
+
+    // malilib's RenderContext takes a buffer size since 0.29 (Minecraft 26.2). The 26.2 and 26.3 branches read
+    // the same, but are compiled against different pipeline classes: 26.3 moved Minecraft's RenderPipeline to
+    // com.mojang.renderpearl.
+
+    /** A context drawing the outlines through walls. */
+    private static RenderContext outlines() {
+        if (Mc.is("[26.3,)")) {
+            return new RenderContext(OUTLINES, MaLiLibPipelines.DEBUG_LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL, 0);
+        }
+        if (Mc.is("[26.2,)")) {
+            return new RenderContext(OUTLINES, MaLiLibPipelines.DEBUG_LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL, 0);
+        }
+        return new RenderContext(OUTLINES, MaLiLibPipelines.DEBUG_LINES_MASA_SIMPLE_NO_DEPTH_NO_CULL);
+    }
+
+    /** Starts drawing the translucent sides through walls in {@code ctx}. */
+    private static BufferBuilder startSides(RenderContext ctx) {
+        if (Mc.is("[26.3,)")) {
+            return ctx.start(SIDES, MaLiLibPipelines.POSITION_COLOR_TRANSLUCENT_NO_DEPTH_NO_CULL, 0);
+        }
+        if (Mc.is("[26.2,)")) {
+            return ctx.start(SIDES, MaLiLibPipelines.POSITION_COLOR_TRANSLUCENT_NO_DEPTH_NO_CULL, 0);
+        }
+        return ctx.start(SIDES, MaLiLibPipelines.POSITION_COLOR_TRANSLUCENT_NO_DEPTH_NO_CULL);
     }
 
     private static void draw(RenderContext ctx, BufferBuilder buffer, boolean setColor) {

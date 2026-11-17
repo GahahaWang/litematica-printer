@@ -1,5 +1,6 @@
 package me.aleksilassila.litematica.printer.utils;
 
+import me.aleksilassila.litematica.printer.multiversion.Multiversion;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -37,7 +38,7 @@ public class BucketHelper {
      */
     public static @Nullable BlockHitResult getHitFilling(LocalPlayer player, Fluid fluid, float yaw, float pitch, BlockPos target) {
         Vec3 from = player.getEyePosition();
-        Vec3 to = from.add(player.calculateViewVector(pitch, yaw).scale(player.blockInteractionRange()));
+        Vec3 to = from.add(Multiversion.viewVector(player, pitch, yaw).scale(player.blockInteractionRange()));
         BlockHitResult hit = player.level().clip(new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
         if (hit.getType() != HitResult.Type.BLOCK) {
             return null;

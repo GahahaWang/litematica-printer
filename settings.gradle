@@ -1,5 +1,7 @@
 pluginManagement {
     repositories {
+        // FastMultiversion's Gradle plugin.
+        maven { url = 'https://gahahawang.github.io/FastMultiversion/maven-dev' }
         maven {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
@@ -7,4 +9,18 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+}
+
+plugins {
+    // FastMultiversion's dev channel (maven-dev above): its newest pre-release or release, whichever is newer.
+    // Gradle checks for a new one once a day, or right away with --refresh-dependencies.
+    id 'cc.gahaha.fastmultiversion' version 'latest.integration'
+}
+
+rootProject.name = 'litematica-printer'
+
+// One project per Minecraft version, e.g. :26.2 in versions/26.2, running gradle/version/version.gradle.
+// The sources stay in src/main; Mc.is(...) and @Mc.Is(...) keep what differs between versions apart.
+multiversion {
+    versions '26.1.2', '26.2', '26.3'
 }

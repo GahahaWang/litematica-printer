@@ -1,5 +1,8 @@
 package me.aleksilassila.litematica.printer.utils;
 
+import net.minecraft.tags.BlockTags;
+import cc.gahaha.fastmultiversion.Mc;
+import me.aleksilassila.litematica.printer.multiversion.Multiversion;
 import static fi.dy.masa.litematica.config.Configs.Visuals.IGNORE_EXISTING_BLOCKS;
 
 import fi.dy.masa.litematica.data.DataManager;
@@ -490,10 +493,14 @@ public class WaterFillPlanner {
         return iceBreaking.leavesWater(state) && holdsMeltWater(level, pos) || meltsFromLight(level, pos, state);
     }
 
-    // IceBlock#playerDestroy only leaves water above something solid or liquid
+    // IceBlock#playerDestroy only leaves water above something solid or liquid; since 26.3, above a block
+    // tagged ice_melts_when_destroyed_above or liquid
     @SuppressWarnings("deprecation") // BlockStateBase#blocksMotion and #liquid, which IceBlock#playerDestroy itself checks
     private static boolean holdsMeltWater(Level level, BlockPos pos) {
         BlockState below = level.getBlockState(pos.below());
+        if (Mc.is("[26.3,)")) {
+            return below.is(BlockTags.ICE_MELTS_WHEN_DESTROYED_ABOVE) || below.liquid();
+        }
         return below.blocksMotion() || below.liquid();
     }
 

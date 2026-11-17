@@ -1,5 +1,6 @@
 package me.aleksilassila.litematica.printer.guides;
 
+import me.aleksilassila.litematica.printer.multiversion.Multiversion;
 import java.util.ArrayList;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 import me.aleksilassila.litematica.printer.guides.interaction.*;
@@ -43,7 +44,7 @@ public class Guides {
         registerGuide(FlowerPotFillGuide.class, FlowerPotBlock.class);
 
         registerGuide(PropertySpecificGuesserGuide.class,
-                RepeaterBlock.class, ComparatorBlock.class, RedStoneWireBlock.class, RedstoneTorchBlock.class,
+                RepeaterBlock.class, ComparatorBlock.class, Multiversion.REDSTONE_WIRE, RedstoneTorchBlock.class,
                 BambooStalkBlock.class, CactusBlock.class, SaplingBlock.class, ScaffoldingBlock.class,
                 PointedDripstoneBlock.class,
                 CrossCollisionBlock.class, DoorBlock.class, TrapDoorBlock.class, FenceGateBlock.class,

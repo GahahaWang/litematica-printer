@@ -1,0 +1,136 @@
+// The build script of every version project, e.g. :26.2 in versions/26.2; multiversion.version is that
+// project's Minecraft version, and mc.<version>.<key> in gradle.properties its dependencies.
+apply plugin: 'net.fabricmc.fabric-loom'
+apply plugin: 'maven-publish'
+
+def mc = multiversion.version
+def dep = { String key -> project.property("mc.${mc}.${key}") }
+
+repositories {
+    maven {url = "https://masa.dy.fi/maven/sakura-ryoko"
+        content {includeGroupAndSubgroups("fi.dy.masa")}
+    }
+    maven {url = 'https://maven.fallenbreath.me/releases'
+        content {includeGroupAndSubgroups("me.fallenbreath")}
+    }
+    maven {url = 'https://maven.terraformersmc.com/releases/'
+        content { includeGroupAndSubgroups("com.terraformersmc")}
+    }
+    maven { url = 'https://jitpack.io'
+        content { includeGroupAndSubgroups("io.github")}
+    }
+    maven {url = 'https://api.modrinth.com/maven'
+        content {includeGroupAndSubgroups("maven.modrinth")}
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${mc}"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
+
+    implementation "fi.dy.masa.malilib:malilib-fabric-${mc}:${dep('malilib')}"
+    implementation "fi.dy.masa.litematica:litematica-fabric-${mc}:${dep('litematica')}"
+
+    implementation "net.fabricmc.fabric-api:fabric-api:${dep('fabric_api')}"
+
+    implementation "com.terraformersmc:modmenu:${dep('modmenu')}"
+    implementation "maven.modrinth:next-fabric-bedrock-miner:${dep('bedrock_miner')}"
+}
+
+group = "${maven_group}.${mod_id}"
+version = mod_version
+if (version.endsWith('-dev')) {
+    version += "." + new Date().format('yyyyMMdd.HHmmss')
+}
+base {
+    archivesName = "${mod_file_name}-${mc}"
+}
+
+loom {
+    runs {
+        // Each version runs the game in its own directory, versions/<version>/run.
+        configureEach {
+            ideConfigGenerated(true)    // a run configuration per version, e.g. "Fabric Client 26.3"
+            appendProjectPathToDisplayName = false
+        }
+        client {
+            setConfigName("Fabric Client ${mc}")
+        }
+        server {
+            setConfigName("Fabric Server ${mc}")
+        }
+    }
+}
+
+/** A version's range for fabric.mod.json, from the dependency's version: 0.29.6 → ">=0.29.0- <0.30.0-". */
+def line = { String version ->
+    def parts = version.tokenize('.')
+    [from: "${parts[0]}.${parts[1]}.0-", to: "${parts[0]}.${(parts[1] as int) + 1}.0-"]
+}
+
+processResources {
+    exclude '**/*.xcf'
+    exclude '**/xcf'
+
+    def malilib = line(dep('malilib'))
+    def litematica = line(dep('litematica'))
+    def properties = [
+            mod_version     : mod_version,
+            minecraft_range : dep('minecraft_range'),
+            malilib_range   : ">=${malilib.from} <${malilib.to}",
+            litematica_range: ">=${litematica.from} <${litematica.to}",
+            malilib_breaks  : "<${malilib.from}",
+            litematica_breaks: "<${litematica.from}",
+    ]
+    inputs.properties(properties)
+    filesMatching("fabric.mod.json") {
+        expand(properties)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release = 25
+}
+
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = true
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+jar {
+    from(rootProject.file("LICENSE.md")) {
+        rename { "${it}_${base.archivesName.get()}" }
+    }
+}
+
+// Every version's jar also goes to the root project: build/libs/litematica-printer-<Minecraft version>-<mod version>.jar
+// (build/libs, not build itself, which also holds the API database the compilation reads).
+def collectJar = tasks.register('collectJar', Copy) {
+    from tasks.named('jar')
+    into rootProject.layout.buildDirectory.dir('libs')
+}
+tasks.named('build') {
+    dependsOn collectJar
+}
+
+tasks.publish.dependsOn build
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = base.archivesName.get()
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            url = "${rootProject.projectDir}/../../CommonMaven"
+        }
+    }
+}

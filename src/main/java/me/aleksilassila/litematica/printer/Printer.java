@@ -5,8 +5,10 @@ import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
 import fi.dy.masa.litematica.selection.Box;
+import fi.dy.masa.litematica.world.ChunkSchematicState;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
+import it.unimi.dsi.fastutil.longs.Long2BooleanOpenHashMap;
 import me.aleksilassila.litematica.printer.actions.Action;
 import me.aleksilassila.litematica.printer.config.Configs;
 import me.aleksilassila.litematica.printer.guides.Guide;
@@ -19,6 +21,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -66,7 +70,7 @@ public class Printer {
         }
 
         positionCache.pruneExpiredCacheEntries();
-        List<BlockPos> positions = getReachablePositions();
+        List<BlockPos> positions = getReachablePositions(worldSchematic);
         findBlock:
         for (BlockPos position : positions) {
             if (positionCache.isPositionCached(position)) {
@@ -128,7 +132,9 @@ public class Printer {
         return false;
     }
 
-    private List<BlockPos> getReachablePositions() {
+    private List<BlockPos> getReachablePositions(WorldSchematic worldSchematic) {
+        Level level = this.player.level();
+        Long2BooleanOpenHashMap readyChunks = new Long2BooleanOpenHashMap();
         int maxReach = (int) Math.ceil(Configs.PRINTING_RANGE.getDoubleValue());
         double maxReachSquared = Mth.square(Configs.PRINTING_RANGE.getDoubleValue());
         List<BoxBounds> activeBounds = getActiveSchematicBounds();
@@ -175,6 +181,16 @@ public class Printer {
                         continue;
                     }
 
+                    int chunkX = blockX >> 4;
+                    int chunkZ = blockZ >> 4;
+                    long chunk = ChunkPos.pack(chunkX, chunkZ);
+                    if (!readyChunks.containsKey(chunk)) {
+                        readyChunks.put(chunk, isChunkReady(level, worldSchematic, chunkX, chunkZ));
+                    }
+                    if (!readyChunks.get(chunk)) {
+                        continue;
+                    }
+
                     positions.add(blockPos);
                 }
             }
@@ -188,6 +204,17 @@ public class Printer {
         });
 
         return positions;
+    }
+
+    /**
+     * Whether both worlds hold their real blocks in this chunk. Litematica fills a schematic chunk on a background
+     * thread after its client chunk loads (a teleport, a respawn, coming back into range), and empties it again
+     * whenever it rebuilds it: until it is filled the schematic reads as air there, so every block in reach would
+     * look like one to break.
+     */
+    private static boolean isChunkReady(Level level, WorldSchematic worldSchematic, int chunkX, int chunkZ) {
+        return level.getChunkSource().hasChunk(chunkX, chunkZ)
+                && worldSchematic.getChunkSource().getChunkState(chunkX, chunkZ).atLeast(ChunkSchematicState.FILLED);
     }
 
     private List<BoxBounds> getActiveSchematicBounds() {

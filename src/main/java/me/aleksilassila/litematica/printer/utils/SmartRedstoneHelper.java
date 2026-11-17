@@ -1,5 +1,6 @@
 package me.aleksilassila.litematica.printer.utils;
 
+import me.aleksilassila.litematica.printer.multiversion.Multiversion;
 import fi.dy.masa.litematica.world.WorldSchematic;
 import me.aleksilassila.litematica.printer.config.Configs;
 import net.minecraft.core.BlockPos;
@@ -102,20 +103,20 @@ public class SmartRedstoneHelper {
         BlockState clientState = clientWorld.getBlockState(pos);
         BlockState schematicState = schematicWorld.getBlockState(pos);
         
-        if (!(schematicState.getBlock() instanceof RedStoneWireBlock)) {
+        if (!Multiversion.REDSTONE_WIRE.isInstance(schematicState.getBlock())) {
             return true;
         }
         
-        if (!(clientState.getBlock() instanceof RedStoneWireBlock)) {
+        if (!Multiversion.REDSTONE_WIRE.isInstance(clientState.getBlock())) {
             return false;
         }
         
-        return schematicState.getValue(RedStoneWireBlock.EAST) == clientState.getValue(RedStoneWireBlock.EAST) &&
-               schematicState.getValue(RedStoneWireBlock.WEST) == clientState.getValue(RedStoneWireBlock.WEST) &&
-               schematicState.getValue(RedStoneWireBlock.SOUTH) == clientState.getValue(RedStoneWireBlock.SOUTH) &&
-               schematicState.getValue(RedStoneWireBlock.NORTH) == clientState.getValue(RedStoneWireBlock.NORTH) &&
-               Objects.equals(schematicState.getValue(RedStoneWireBlock.POWER) == 0, 
-                            clientState.getValue(RedStoneWireBlock.POWER) == 0);
+        return schematicState.getValue(Multiversion.WIRE_EAST) == clientState.getValue(Multiversion.WIRE_EAST) &&
+               schematicState.getValue(Multiversion.WIRE_WEST) == clientState.getValue(Multiversion.WIRE_WEST) &&
+               schematicState.getValue(Multiversion.WIRE_SOUTH) == clientState.getValue(Multiversion.WIRE_SOUTH) &&
+               schematicState.getValue(Multiversion.WIRE_NORTH) == clientState.getValue(Multiversion.WIRE_NORTH) &&
+               Objects.equals(schematicState.getValue(Multiversion.WIRE_POWER) == 0, 
+                            clientState.getValue(Multiversion.WIRE_POWER) == 0);
     }
     
     /**

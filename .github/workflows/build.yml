@@ -35,18 +35,13 @@ jobs:
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
 
-      - name: build
-        run: ./gradlew build
-      - name: Find built JAR
-        id: jar
-        run: |
-          JAR=$(ls build/*.jar | grep -v sources | grep -v javadoc | head -n1)
-          echo "PATH=$JAR" >> $GITHUB_OUTPUT
-          echo "NAME=$(basename $JAR)" >> $GITHUB_OUTPUT
+      - name: build every Minecraft version
+        run: ./gradlew buildAllVersions
+      # One jar per Minecraft version (gradle/version/version.gradle, collectJar).
       - name: capture build artifacts
         if: ${{ runner.os == 'Linux' }}
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ steps.jar.outputs.NAME }}
-          path: ${{ steps.jar.outputs.PATH }}
-          archive: false
+          name: litematica-printer
+          path: build/libs/litematica-printer-*.jar
+          if-no-files-found: error

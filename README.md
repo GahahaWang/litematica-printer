@@ -64,31 +64,22 @@ such as automatic excavation or correcting incorrectly placed blocks are out of 
 
 ## Building and Contributing
 
-Each Minecraft version has its own submodule, that has the default fabric mod development tasks
-and contains the version-specific code. To reduce the amount of work I have to do to make
-it work for multiple Minecraft versions, I created this hacky gradle script that copies the
-common code over to the other version implementations. Currently, the script copies everything,
-except `implementation/` folder, which should therefore be the only places containing any
-version specific code.
+One source tree, `src/main`, builds the mod for every supported Minecraft version (26.1.2, 26.2 and 26.3)
+with [FastMultiversion](https://github.com/GahahaWang/FastMultiversion). Each version is a Gradle project,
+such as `:26.2` in `versions/26.2`, set up by `gradle/version/version.gradle`. The dependencies of each
+version are in `gradle.properties` (`mc.<version>.<key>`).
 
-If you want to make changes to the mod, I would recommend you to first implement them for
-the latest Minecraft version (1.19), and then running the `syncImplementations` gradle task,
-found **in the same subproject** as your changes, to copy the common code of that submodule
-to the other implementations. After that you will only have to write / copy manually
-the version-specific code (found in the `implementation` folder) to the other versions and do some testing to ensure
-everything works.
+Code that differs between versions is ordinary Java: `Mc.is("[26.3,)")` for statements and expressions,
+`@Mc.Is("[26.3,)")` for declarations. Most of it is in `multiversion/Multiversion.java`. A build fails when code uses
+Minecraft, malilib or Litematica API in a version that does not have it, and says where it exists.
 
-Contributions are welcome and appreciated! I have recently rewritten the whole project,
-so that it would be much easier to work with.
-
-Also, if you know a better way to develop for multiple
-Minecraft versions that doesn't involve multiple git branches or hacky gradle scripts
-(perhaps a way to share common code between the implementations?), please let me know.
+Contributions are welcome and appreciated!
 
 Useful gradle tasks:
-- `[v1_19/v1_18/v1_17]:syncImplementations`
-    - Copy over common code to other implementations
-- `buildAll`
-    - Build all implementations and copy their jars to `build/` directory for easy distribution.
-- `[v1_19/v1_18/v1_17]:runClient`
-    - Start the target Minecraft version
+
+- `buildAllVersions`
+    - Build every version; the jars are in `build/libs/` (`litematica-printer-<Minecraft version>-<version>.jar`).
+- `:26.3:runClient`
+    - Start the given Minecraft version (in `versions/26.3/run`).
+- `generateApiDatabase`
+    - Update the list of each version's API that the version check uses (any build also does).

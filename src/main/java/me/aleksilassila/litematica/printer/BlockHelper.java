@@ -1,5 +1,7 @@
 package me.aleksilassila.litematica.printer;
 
+import cc.gahaha.fastmultiversion.Mc;
+import me.aleksilassila.litematica.printer.multiversion.Multiversion;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +14,7 @@ abstract public class BlockHelper {
     public static List<Class<?>> interactiveBlocks = new ArrayList<>(Arrays.asList(
             AbstractChestBlock.class, AbstractFurnaceBlock.class, CraftingTableBlock.class,
             LeverBlock.class,
-            DoorBlock.class, TrapDoorBlock.class, BedBlock.class, RedStoneWireBlock.class,
+            DoorBlock.class, TrapDoorBlock.class, BedBlock.class, Multiversion.REDSTONE_WIRE,
             ScaffoldingBlock.class,
             HopperBlock.class, EnchantingTableBlock.class, NoteBlock.class, JukeboxBlock.class,
             CakeBlock.class,

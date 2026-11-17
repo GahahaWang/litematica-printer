@@ -1,5 +1,6 @@
 package me.aleksilassila.litematica.printer.guides.placement;
 
+import me.aleksilassila.litematica.printer.multiversion.Multiversion;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -149,7 +150,7 @@ abstract public class PlacementGuide extends Guide {
 //                return true;
 //            }
             // TODO --> if this ever gets removed
-            return blockState.blocksMotion();
+            return Multiversion.blocksMotion(blockState);
         }
 
         return true;

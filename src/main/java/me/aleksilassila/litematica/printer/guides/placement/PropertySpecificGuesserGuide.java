@@ -1,5 +1,7 @@
 package me.aleksilassila.litematica.printer.guides.placement;
 
+import cc.gahaha.fastmultiversion.Mc;
+import me.aleksilassila.litematica.printer.multiversion.Multiversion;
 import me.aleksilassila.litematica.printer.SchematicBlockState;
 
 import net.minecraft.world.level.block.*;
@@ -11,14 +13,14 @@ public class PropertySpecificGuesserGuide extends GuesserGuide {
     protected static Property<?>[] ignoredProperties = new Property[]{
             RepeaterBlock.DELAY,
             ComparatorBlock.MODE,
-            RedStoneWireBlock.POWER,
-            RedStoneWireBlock.EAST,
-            RedStoneWireBlock.NORTH,
-            RedStoneWireBlock.SOUTH,
-            RedStoneWireBlock.WEST,
+            Multiversion.WIRE_POWER,
+            Multiversion.WIRE_EAST,
+            Multiversion.WIRE_NORTH,
+            Multiversion.WIRE_SOUTH,
+            Multiversion.WIRE_WEST,
             BlockStateProperties.POWERED,
             BlockStateProperties.OPEN,
-            PointedDripstoneBlock.THICKNESS,
+            Mc.is("[26.2,)") ? SpeleothemBlock.THICKNESS : PointedDripstoneBlock.THICKNESS,
             ScaffoldingBlock.DISTANCE,
             ScaffoldingBlock.BOTTOM,
             CactusBlock.AGE,

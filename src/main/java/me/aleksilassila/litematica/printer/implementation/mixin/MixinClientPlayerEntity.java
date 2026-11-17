@@ -1,5 +1,7 @@
 package me.aleksilassila.litematica.printer.implementation.mixin;
 
+import cc.gahaha.fastmultiversion.Mc;
+import java.util.List;
 import java.util.Optional;
 import com.mojang.authlib.GameProfile;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
@@ -13,9 +15,11 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -77,6 +81,7 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
 //        }).start();
 //    }
 
+    @Mc.Is("[26.1.2,26.3)")
     @Inject(method = "openTextEdit", at = @At("HEAD"), cancellable = true)
     public void openEditSignScreen(SignBlockEntity sign, boolean front, CallbackInfo ci) {
         getTargetSignEntity(sign).ifPresent(signBlockEntity ->
@@ -88,6 +93,18 @@ public class MixinClientPlayerEntity extends AbstractClientPlayer {
                     signBlockEntity.getText(front).getMessage(2, false).getString(),
                     signBlockEntity.getText(front).getMessage(3, false).getString());
             this.connection.send(packet);
+            ci.cancel();
+        });
+    }
+
+    // Since 26.3 a sign's side is a SignTextSlot, and the packet takes all its lines at once.
+    @Mc.Is("[26.3,)")
+    @Inject(method = "openTextEdit", at = @At("HEAD"), cancellable = true)
+    public void openEditSignScreen(SignBlockEntity sign, SignTextSlot side, CallbackInfo ci) {
+        getTargetSignEntity(sign).ifPresent(signBlockEntity ->
+        {
+            List<String> lines = signBlockEntity.getText(side).getMessages(false).stream().map(Component::getString).toList();
+            this.connection.send(new ServerboundSignUpdatePacket(sign.getBlockPos(), lines, side));
             ci.cancel();
         });
     }
